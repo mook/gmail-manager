@@ -15,19 +15,23 @@ const XML_CONTENT_TYPE = "text/xml";
 const STRING_TYPE = Components.interfaces.nsIDOMXPathResult.STRING_TYPE;
 const UNORDERED_NODE_SNAPSHOT_TYPE = Components.interfaces.nsIDOMXPathResult.UNORDERED_NODE_SNAPSHOT_TYPE;
 
+Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+const Ci = Components.interfaces;
+const Cc = Components.classes;
+
 function gmParser()
 {
   // Load the parsing services
-  this._logger = Components.classes["@longfocus.com/gmanager/logger;1"].getService(Components.interfaces.gmILogger);
-  this._converter = Components.classes["@mozilla.org/intl/scriptableunicodeconverter"].createInstance(Components.interfaces.nsIScriptableUnicodeConverter);
-  this._domParser = Components.classes['@mozilla.org/xmlextras/domparser;1'].getService(Components.interfaces.nsIDOMParser);
-  this._domSerializer = Components.classes['@mozilla.org/xmlextras/xmlserializer;1'].getService(Components.interfaces.nsIDOMSerializer);
+  this._logger = Cc["@longfocus.com/gmanager/logger;1"].getService(Ci.gmILogger);
+  this._converter = Cc["@mozilla.org/intl/scriptableunicodeconverter"].createInstance(Ci.nsIScriptableUnicodeConverter);
+  this._domParser = Cc['@mozilla.org/xmlextras/domparser;1'].getService(Ci.nsIDOMParser);
+  this._domSerializer = Cc['@mozilla.org/xmlextras/xmlserializer;1'].getService(Ci.nsIDOMSerializer);
   
   // Initialize the converter
   this._converter.charset = "UTF-8";
   
   // Initialize the transforms directory
-  var directoryService = Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties);
+  var directoryService = Cc["@mozilla.org/file/directory_service;1"].getService(Ci.nsIProperties);
   this._transformsDir = directoryService.get("ProfD", Components.interfaces.nsIFile);
   this._transformsDir.append("extensions");
   this._transformsDir.append("{582195F5-92E7-40a0-A127-DB71295901D7}");
@@ -38,7 +42,7 @@ function gmParser()
   if (!this._transformsDir.exists())
   {
     // This is used for development
-    this._transformsDir = directoryService.get("ProfD", Components.interfaces.nsIFile);
+    this._transformsDir = directoryService.get("ProfD", Ci.nsIFile);
     this._transformsDir.append("gmanager");
     this._transformsDir.append("transforms");
   }
@@ -308,53 +312,14 @@ gmParser.prototype = {
     return results;
   },
   
-  QueryInterface: function(iid)
-  {
-    if (iid.equals(Components.interfaces.gmIParser) ||
-        iid.equals(Components.interfaces.nsISupports))
-      return this;
-    throw Components.results.NS_ERROR_NO_INTERFACE;
-  }
+  QueryInterface: XPCOMUtils.generateQI([Ci.gmIParser]),
+  classID: Components.ID("{d0fe9af0-f7bc-11da-974d-0800200c9a66}"),
+  classDescription: "Preferences XML Parser",
+  contractID: "@longfocus.com/gmanager/parser;1"
 }
 
-var myModule = {
-  firstTime: true,
-  
-  myCID: Components.ID("{d0fe9af0-f7bc-11da-974d-0800200c9a66}"),
-  myDesc: "Preferences XML Parser",
-  myProgID: "@longfocus.com/gmanager/parser;1",
-  myFactory: {
-    createInstance: function(outer, iid) {
-      if (outer != null)
-        throw Components.results.NS_ERROR_NO_AGGREGATION;
-      
-      return (new gmParser()).QueryInterface(iid);
-    }
-  },
-  
-  registerSelf: function(compMgr, fileSpec, location, type)
-  {
-    if (this.firstTime) {
-      this.firstTime = false;
-      throw Components.results.NS_ERROR_FACTORY_REGISTER_AGAIN;
-    }
-    
-    compMgr = compMgr.QueryInterface(Components.interfaces.nsIComponentRegistrar);
-    compMgr.registerFactoryLocation(this.myCID, this.myDesc, this.myProgID, fileSpec, location, type);
-  },
-  
-  getClassObject: function(compMgr, cid, iid)
-  {
-    if (!cid.equals(this.myCID))
-      throw Components.results.NS_ERROR_NO_INTERFACE;
-    
-    if (!iid.equals(Components.interfaces.nsIFactory))
-      throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
-    
-    return this.myFactory;
-  },
-  
-  canUnload: function(compMgr) { return true; }
-};
-
-function NSGetModule(compMgr, fileSpec) { return myModule; }
+if (XPCOMUtils.generateNSGetFactory) {
+  var NSGetFactory = XPCOMUtils.generateNSGetFactory([gmParser]);
+} else {
+  var NSGetModule = XPCOMUtils.generateNSGetModule([gmParser]);
+}

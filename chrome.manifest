@@ -2,6 +2,26 @@
 # By Todd Long <longfocus@gmail.com>
 # http://www.longfocus.com/firefox/gmanager/
 
+interfaces components/gmAccount.xpt
+interfaces components/gmCookies.xpt
+interfaces components/gmLogger.xpt
+interfaces components/gmManager.xpt
+interfaces components/gmParser.xpt
+interfaces components/gmService.xpt
+interfaces components/gmServiceGmail.xpt
+component {d4676ee3-7e3c-455a-b417-37eaea3082ad} components/gmAccount.js
+component {81516840-f7dd-11da-974d-0800200c9a66} components/gmCookies.js
+component {07d9b512-8e83-418a-a540-0ec804b82195} components/gmLogger.js
+component {bf43b6d0-f7dd-11da-974d-0800200c9a66} components/gmManager.js
+component {d0fe9af0-f7bc-11da-974d-0800200c9a66} components/gmParser.js
+component {b07df9d0-f7dd-11da-974d-0800200c9a66} components/gmServiceGmail.js
+contract @longfocus.com/gmanager/account;1       {d4676ee3-7e3c-455a-b417-37eaea3082ad}
+contract @longfocus.com/gmanager/cookies;1       {81516840-f7dd-11da-974d-0800200c9a66}
+contract @longfocus.com/gmanager/logger;1        {07d9b512-8e83-418a-a540-0ec804b82195}
+contract @longfocus.com/gmanager/manager;1       {bf43b6d0-f7dd-11da-974d-0800200c9a66}
+contract @longfocus.com/gmanager/parser;1        {d0fe9af0-f7bc-11da-974d-0800200c9a66}
+contract @longfocus.com/gmanager/service/gmail;1 {b07df9d0-f7dd-11da-974d-0800200c9a66}
+
 content gmanager chrome/content/
 overlay chrome://browser/content/browser.xul chrome://gmanager/content/overlay.xul
 overlay chrome://songbird/content/xul/menuOverlay.xul chrome://gmanager/content/overlay.xul

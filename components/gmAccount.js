@@ -12,11 +12,15 @@ const ACCOUNT_TYPE_YAHOO = "yahoo";
 // Password site
 const PASSWORD_SITE = "longfocus.gmanager.account";
 
+Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+const Ci = Components.interfaces;
+const Cc = Components.classes;
+
 function gmAccount()
 {
   // Load the services
-  this._logger = Components.classes["@longfocus.com/gmanager/logger;1"].getService(Components.interfaces.gmILogger);
-  this._timer = Components.classes["@mozilla.org/timer;1"].createInstance(Components.interfaces.nsITimer);
+  this._logger = Cc["@longfocus.com/gmanager/logger;1"].getService(Ci.gmILogger);
+  this._timer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
 }
 gmAccount.prototype = {
   _logger: null,
@@ -391,53 +395,15 @@ gmAccount.prototype = {
       this.check();
   },
   
-  QueryInterface: function(iid)
-  {
-    if (iid.equals(Components.interfaces.gmIAccount) ||
-        iid.equals(Components.interfaces.nsISupports))
-      return this;
-    throw Components.results.NS_ERROR_NO_INTERFACE;
-  }
+  QueryInterface: XPCOMUtils.generateQI([Ci.gmIAccount,
+                                         Ci.nsITimerCallback]),
+  classID: Components.ID("{d4676ee3-7e3c-455a-b417-37eaea3082ad}"),
+  classDescription: "Mail Account",
+  contractID: "@longfocus.com/gmanager/account;1"
 }
 
-var myModule = {
-  firstTime: true,
-  
-  myCID: Components.ID("{d4676ee3-7e3c-455a-b417-37eaea3082ad}"),
-  myDesc: "Mail Account",
-  myProgID: "@longfocus.com/gmanager/account;1",
-  myFactory: {
-    createInstance: function(outer, iid) {
-      if (outer != null)
-        throw Components.results.NS_ERROR_NO_AGGREGATION;
-      
-      return (new gmAccount()).QueryInterface(iid);
-    }
-  },
-  
-  registerSelf: function(compMgr, fileSpec, location, type)
-  {
-    if (this.firstTime) {
-      this.firstTime = false;
-      throw Components.results.NS_ERROR_FACTORY_REGISTER_AGAIN;
-    }
-    
-    compMgr = compMgr.QueryInterface(Components.interfaces.nsIComponentRegistrar);
-    compMgr.registerFactoryLocation(this.myCID, this.myDesc, this.myProgID, fileSpec, location, type);
-  },
-  
-  getClassObject: function(compMgr, cid, iid)
-  {
-    if (!cid.equals(this.myCID))
-      throw Components.results.NS_ERROR_NO_INTERFACE;
-    
-    if (!iid.equals(Components.interfaces.nsIFactory))
-      throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
-    
-    return this.myFactory;
-  },
-  
-  canUnload: function(compMgr) { return true; }
-};
-
-function NSGetModule(compMgr, fileSpec) { return myModule; }
+if (XPCOMUtils.generateNSGetFactory) {
+  var NSGetFactory = XPCOMUtils.generateNSGetFactory([gmAccount]);
+} else {
+  var NSGetModule = XPCOMUtils.generateNSGetModule([gmAccount]);
+}

@@ -2,12 +2,16 @@
 // By Todd Long <longfocus@gmail.com>
 // http://www.longfocus.com/firefox/gmanager/
 
+Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+const Ci = Components.interfaces;
+const Cc = Components.classes;
+
 function gmCookies()
 {
   // Load the services
-  this._cookieManager = Components.classes["@mozilla.org/cookiemanager;1"].getService(Components.interfaces.nsICookieManager);
-  this._cookieService = Components.classes["@mozilla.org/cookieService;1"].getService(Components.interfaces.nsICookieService);
-  this._observer = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
+  this._cookieManager = Cc["@mozilla.org/cookiemanager;1"].getService(Ci.nsICookieManager);
+  this._cookieService = Cc["@mozilla.org/cookieService;1"].getService(Ci.nsICookieService);
+  this._observer = Cc["@mozilla.org/observer-service;1"].getService(Ci.nsIObserverService);
   
   // Initialize the sessions
   this._sessions = new Array();
@@ -185,53 +189,15 @@ gmCookies.prototype = {
     }
   },
   
-  QueryInterface: function(iid)
-  {
-    if (iid.equals(Components.interfaces.gmICookies) ||
-        iid.equals(Components.interfaces.nsISupports))
-      return this;
-    throw Components.results.NS_ERROR_NO_INTERFACE;
-  }
+  QueryInterface: XPCOMUtils.generateQI([Ci.gmICookies,
+                                         Ci.nsIObserver]),
+  classID: Components.ID("{81516840-f7dd-11da-974d-0800200c9a66}"),
+  classDescription: "Cookie Sessions Manager",
+  contractID: "@longfocus.com/gmanager/cookies;1"
 }
 
-var myModule = {
-  firstTime: true,
-  
-  myCID: Components.ID("{81516840-f7dd-11da-974d-0800200c9a66}"),
-  myDesc: "Cookie Sessions Manager",
-  myProgID: "@longfocus.com/gmanager/cookies;1",
-  myFactory: {
-    createInstance: function (outer, iid) {
-      if (outer != null)
-        throw Components.results.NS_ERROR_NO_AGGREGATION;
-      
-      return (new gmCookies()).QueryInterface(iid);
-    }
-  },
-  
-  registerSelf: function (compMgr, fileSpec, location, type)
-  {
-    if (this.firstTime) {
-      this.firstTime = false;
-      throw Components.results.NS_ERROR_FACTORY_REGISTER_AGAIN;
-    }
-    
-    compMgr = compMgr.QueryInterface(Components.interfaces.nsIComponentRegistrar);
-    compMgr.registerFactoryLocation(this.myCID, this.myDesc, this.myProgID, fileSpec, location, type);
-  },
-  
-  getClassObject: function (compMgr, cid, iid)
-  {
-    if (!cid.equals(this.myCID))
-      throw Components.results.NS_ERROR_NO_INTERFACE;
-    
-    if (!iid.equals(Components.interfaces.nsIFactory))
-      throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
-    
-    return this.myFactory;
-  },
-  
-  canUnload: function(compMgr) { return true; }
-};
-
-function NSGetModule(compMgr, fileSpec) { return myModule; }
+if (XPCOMUtils.generateNSGetFactory) {
+  var NSGetFactory = XPCOMUtils.generateNSGetFactory([gmCookies]);
+} else {
+  var NSGetModule = XPCOMUtils.generateNSGetModule([gmCookies]);
+}

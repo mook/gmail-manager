@@ -8,20 +8,24 @@ const EXTENSION_VERSION = "0.6";
 // Global account type
 const GLOBAL_TYPE = "global";
 
+Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+const Ci = Components.interfaces;
+const Cc = Components.classes;
+
 function gmManager()
 {
   // Load the services
-  this._logger = Components.classes["@longfocus.com/gmanager/logger;1"].getService(Components.interfaces.gmILogger);
-  this._parser = Components.classes["@longfocus.com/gmanager/parser;1"].getService(Components.interfaces.gmIParser);
+  this._logger = Cc["@longfocus.com/gmanager/logger;1"].getService(Ci.gmILogger);
+  this._parser = Cc["@longfocus.com/gmanager/parser;1"].getService(Ci.gmIParser);
   
   // Initialize the preferences directory
-  var directoryService = Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties);
-  var prefsDir = directoryService.get("ProfD", Components.interfaces.nsIFile);
+  var directoryService = Cc["@mozilla.org/file/directory_service;1"].getService(Ci.nsIProperties);
+  var prefsDir = directoryService.get("ProfD", Ci.nsIFile);
   prefsDir.append("gmanager");
   
   // Make sure the preferences directory exists
   if (!prefsDir.exists())
-    prefsDir.create(Components.interfaces.nsIFile.DIRECTORY_TYPE, 0777);
+    prefsDir.create(Ci.nsIFile.DIRECTORY_TYPE, 0777);
   
   // Initialize the main preferences file
   this._prefsXML = prefsDir.clone();
@@ -272,53 +276,14 @@ gmManager.prototype = {
     }
   },
   
-  QueryInterface: function(iid)
-  {
-    if (iid.equals(Components.interfaces.gmIManager) ||
-        iid.equals(Components.interfaces.nsISupports))
-      return this;
-    throw Components.results.NS_ERROR_NO_INTERFACE;
-  }
+  QueryInterface: XPCOMUtils.generateQI([Ci.gmIManager]),
+  classID: Components.ID("{bf43b6d0-f7dd-11da-974d-0800200c9a66}"),
+  classDescription: "Mail Accounts Manager",
+  contractID: "@longfocus.com/gmanager/manager;1"
 }
 
-var myModule = {
-  firstTime: true,
-  
-  myCID: Components.ID("{bf43b6d0-f7dd-11da-974d-0800200c9a66}"),
-  myDesc: "Mail Accounts Manager",
-  myProgID: "@longfocus.com/gmanager/manager;1",
-  myFactory: {
-    createInstance: function(outer, iid) {
-      if (outer != null)
-        throw Components.results.NS_ERROR_NO_AGGREGATION;
-      
-      return (new gmManager()).QueryInterface(iid);
-    }
-  },
-  
-  registerSelf: function(compMgr, fileSpec, location, type)
-  {
-    if (this.firstTime) {
-      this.firstTime = false;
-      throw Components.results.NS_ERROR_FACTORY_REGISTER_AGAIN;
-    }
-    
-    compMgr = compMgr.QueryInterface(Components.interfaces.nsIComponentRegistrar);
-    compMgr.registerFactoryLocation(this.myCID, this.myDesc, this.myProgID, fileSpec, location, type);
-  },
-  
-  getClassObject: function(compMgr, cid, iid)
-  {
-    if (!cid.equals(this.myCID))
-      throw Components.results.NS_ERROR_NO_INTERFACE;
-    
-    if (!iid.equals(Components.interfaces.nsIFactory))
-      throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
-    
-    return this.myFactory;
-  },
-  
-  canUnload: function(compMgr) { return true; }
-};
-
-function NSGetModule(compMgr, fileSpec) { return myModule; }
+if (XPCOMUtils.generateNSGetFactory) {
+  var NSGetFactory = XPCOMUtils.generateNSGetFactory([gmManager]);
+} else {
+  var NSGetModule = XPCOMUtils.generateNSGetModule([gmManager]);
+}

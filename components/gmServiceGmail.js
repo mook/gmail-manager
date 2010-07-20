@@ -4,18 +4,22 @@
 
 const GM_NOTIFY_STATE = "gmanager-accounts-notify-state";
 
+Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+const Ci = Components.interfaces;
+const Cc = Components.classes;
+
 function gmServiceGmail()
 {
   // Load the services
-  this._logger = Components.classes["@longfocus.com/gmanager/logger;1"].getService(Components.interfaces.gmILogger);
-  this._cookieService = Components.classes["@longfocus.com/gmanager/cookies;1"].getService(Components.interfaces.gmICookies);
-  this._cookieManager = Components.classes["@mozilla.org/cookiemanager;1"].getService(Components.interfaces.nsICookieManager2);
-  this._observer = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
-  this._timer = Components.classes["@mozilla.org/timer;1"].createInstance(Components.interfaces.nsITimer);
+  this._logger = Cc["@longfocus.com/gmanager/logger;1"].getService(Ci.gmILogger);
+  this._cookieService = Cc["@longfocus.com/gmanager/cookies;1"].getService(Ci.gmICookies);
+  this._cookieManager = Cc["@mozilla.org/cookiemanager;1"].getService(Ci.nsICookieManager2);
+  this._observer = Cc["@mozilla.org/observer-service;1"].getService(Ci.nsIObserverService);
+  this._timer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
   
-  if ("@mozilla.org/xre/app-info;1" in Components.classes)
+  if ("@mozilla.org/xre/app-info;1" in Cc)
   {
-    var platformVersion = Components.classes["@mozilla.org/xre/app-info;1"].getService(Components.interfaces.nsIXULAppInfo).platformVersion;
+    var platformVersion = Cc["@mozilla.org/xre/app-info;1"].getService(Ci.nsIXULAppInfo).platformVersion;
     this._swapCookies = (platformVersion == null || platformVersion < "1.8.1");
   }
 }
@@ -934,56 +938,18 @@ gmServiceGmail.prototype = {
     });
   },
   
-  QueryInterface: function(iid)
-  {
-    if (iid.equals(Components.interfaces.gmIServiceGmail) || 
-        iid.equals(Components.interfaces.nsISupports))
-      return this;
-    throw Components.results.NS_ERROR_NO_INTERFACE;
-  }
+  QueryInterface: XPCOMUtils.generateQI([Ci.gmIServiceGmail,
+                                         Ci.nsIObserver]),
+  classID: Components.ID("{b07df9d0-f7dd-11da-974d-0800200c9a66}"),
+  classDescription: "Gmail Account Service",
+  contractID: "@longfocus.com/gmanager/service/gmail;1"
 }
 
-var myModule = {
-  firstTime: true,
-  
-  myCID: Components.ID("{b07df9d0-f7dd-11da-974d-0800200c9a66}"),
-  myDesc: "Gmail Account Service",
-  myProgID: "@longfocus.com/gmanager/service/gmail;1",
-  myFactory: {
-    createInstance: function (outer, iid) {
-      if (outer != null)
-        throw Components.results.NS_ERROR_NO_AGGREGATION;
-      
-      return (new gmServiceGmail()).QueryInterface(iid);
-    }
-  },
-  
-  registerSelf: function (compMgr, fileSpec, location, type)
-  {
-    if (this.firstTime) {
-      this.firstTime = false;
-      throw Components.results.NS_ERROR_FACTORY_REGISTER_AGAIN;
-    }
-    
-    compMgr = compMgr.QueryInterface(Components.interfaces.nsIComponentRegistrar);
-    compMgr.registerFactoryLocation(this.myCID, this.myDesc, this.myProgID, fileSpec, location, type);
-  },
-  
-  getClassObject: function (compMgr, cid, iid)
-  {
-    if (!cid.equals(this.myCID))
-      throw Components.results.NS_ERROR_NO_INTERFACE;
-    
-    if (!iid.equals(Components.interfaces.nsIFactory))
-      throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
-    
-    return this.myFactory;
-  },
-  
-  canUnload: function(compMgr) { return true; }
-};
-
-function NSGetModule(compMgr, fileSpec) { return myModule; }
+if (XPCOMUtils.generateNSGetFactory) {
+  var NSGetFactory = XPCOMUtils.generateNSGetFactory([gmServiceGmail]);
+} else {
+  var NSGetModule = XPCOMUtils.generateNSGetModule([gmServiceGmail]);
+}
 
 /* ***** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1

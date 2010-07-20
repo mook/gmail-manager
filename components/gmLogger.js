@@ -2,14 +2,18 @@
 // By Todd Long <longfocus@gmail.com>
 // http://www.longfocus.com/firefox/gmanager/
 
+Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+const Ci = Components.interfaces;
+const Cc = Components.classes;
+
 function gmLogger()
 {
   // Load the console service
-  this._console = Components.classes["@mozilla.org/consoleservice;1"].getService(Components.interfaces.nsIConsoleService);
+  this._console = Cc["@mozilla.org/consoleservice;1"].getService(Ci.nsIConsoleService);
   
   // Load the preference branch observer
-  var prefService = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService);
-  this._branch = prefService.getBranch("longfocus.gmanager.").QueryInterface(Components.interfaces.nsIPrefBranchInternal);
+  var prefService = Cc["@mozilla.org/preferences-service;1"].getService(Ci.nsIPrefService);
+  this._branch = prefService.getBranch("longfocus.gmanager.").QueryInterface(Ci.nsIPrefBranchInternal);
   this._branch.addObserver("", this, false);
   
   // Get the current debug preference value (silent)
@@ -53,53 +57,15 @@ gmLogger.prototype = {
     }
   },
   
-  QueryInterface: function(iid)
-  {
-    if (iid.equals(Components.interfaces.gmILogger) ||
-        iid.equals(Components.interfaces.nsISupports))
-      return this;
-    throw Components.results.NS_ERROR_NO_INTERFACE;
-  }
+  QueryInterface: XPCOMUtils.generateQI([Ci.gmILogger,
+                                         Ci.nsIObserver]),
+  classID: Components.ID("{07d9b512-8e83-418a-a540-0ec804b82195}"),
+  classDescription: "Debug Logger Service",
+  contractID: "@longfocus.com/gmanager/logger;1"
 }
 
-var myModule = {
-  firstTime: true,
-  
-  myCID: Components.ID("{07d9b512-8e83-418a-a540-0ec804b82195}"),
-  myDesc: "Debug Logger Service",
-  myProgID: "@longfocus.com/gmanager/logger;1",
-  myFactory: {
-    createInstance: function(outer, iid) {
-      if (outer != null)
-        throw Components.results.NS_ERROR_NO_AGGREGATION;
-      
-      return (new gmLogger()).QueryInterface(iid);
-    }
-  },
-  
-  registerSelf: function(compMgr, fileSpec, location, type)
-  {
-    if (this.firstTime) {
-      this.firstTime = false;
-      throw Components.results.NS_ERROR_FACTORY_REGISTER_AGAIN;
-    }
-    
-    compMgr = compMgr.QueryInterface(Components.interfaces.nsIComponentRegistrar);
-    compMgr.registerFactoryLocation(this.myCID, this.myDesc, this.myProgID, fileSpec, location, type);
-  },
-  
-  getClassObject: function(compMgr, cid, iid)
-  {
-    if (!cid.equals(this.myCID))
-      throw Components.results.NS_ERROR_NO_INTERFACE;
-    
-    if (!iid.equals(Components.interfaces.nsIFactory))
-      throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
-    
-    return this.myFactory;
-  },
-  
-  canUnload: function(compMgr) { return true; }
-};
-
-function NSGetModule(compMgr, fileSpec) { return myModule; }
+if (XPCOMUtils.generateNSGetFactory) {
+  var NSGetFactory = XPCOMUtils.generateNSGetFactory([gmLogger]);
+} else {
+  var NSGetModule = XPCOMUtils.generateNSGetModule([gmLogger]);
+}
