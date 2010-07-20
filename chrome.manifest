@@ -1,0 +1,51 @@
+# Gmail Manager
+# By Todd Long <longfocus@gmail.com>
+# http://www.longfocus.com/firefox/gmanager/
+
+content gmanager chrome/content/
+overlay chrome://browser/content/browser.xul chrome://gmanager/content/overlay.xul
+overlay chrome://songbird/content/xul/menuOverlay.xul chrome://gmanager/content/overlay.xul
+
+skin gmanager classic/1.0 chrome/skin/classic/
+style chrome://browser/content/browser.xul chrome://gmanager/skin/overlay.css
+style chrome://global/content/customizeToolbar.xul chrome://gmanager/skin/overlay.css
+
+locale gmanager ar-SA chrome/locale/ar-SA/
+locale gmanager bg-BG chrome/locale/bg-BG/
+locale gmanager ca-AD chrome/locale/ca-AD/
+locale gmanager cs-CZ chrome/locale/cs-CZ/
+locale gmanager da-DK chrome/locale/da-DK/
+locale gmanager de-DE chrome/locale/de-DE/
+locale gmanager el-GR chrome/locale/el-GR/
+locale gmanager en-US chrome/locale/en-US/
+locale gmanager es-AR chrome/locale/es-AR/
+locale gmanager es-CL chrome/locale/es-CL/
+locale gmanager es-ES chrome/locale/es-ES/
+locale gmanager eu-ES chrome/locale/eu-ES/
+locale gmanager fa-IR chrome/locale/fa-IR/
+locale gmanager fi-FI chrome/locale/fi-FI/
+locale gmanager fr-FR chrome/locale/fr-FR/
+locale gmanager gl-ES chrome/locale/gl-ES/
+locale gmanager he-IL chrome/locale/he-IL/
+locale gmanager hr-HR chrome/locale/hr-HR/
+locale gmanager hu-HU chrome/locale/hu-HU/
+locale gmanager it-IT chrome/locale/it-IT/
+locale gmanager ja-JP chrome/locale/ja-JP/
+locale gmanager ko-KR chrome/locale/ko-KR/
+locale gmanager lt-LT chrome/locale/lt-LT/
+locale gmanager nl-NL chrome/locale/nl-NL/
+locale gmanager pl-PL chrome/locale/pl-PL/
+locale gmanager pt-BR chrome/locale/pt-BR/
+locale gmanager pt-PT chrome/locale/pt-PT/
+locale gmanager ro-RO chrome/locale/ro-RO/
+locale gmanager ru-RU chrome/locale/ru-RU/
+locale gmanager sk-SK chrome/locale/sk-SK/
+locale gmanager sl-SI chrome/locale/sl-SI/
+locale gmanager sr-RS chrome/locale/sr-RS/
+locale gmanager sv-SE chrome/locale/sv-SE/
+locale gmanager th-TH chrome/locale/th-TH/
+locale gmanager tr-TR chrome/locale/tr-TR/
+locale gmanager uk-UA chrome/locale/uk-UA/
+locale gmanager vi-VN chrome/locale/vi-VN/
+locale gmanager zh-CN chrome/locale/zh-CN/
+locale gmanager zh-TW chrome/locale/zh-TW/
