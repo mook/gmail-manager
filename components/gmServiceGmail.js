@@ -749,19 +749,14 @@ gmServiceGmail.prototype = {
             if (isLatest)
             {
               // Snippets
-              var tbMatches = aData.match(/\["tb",(.|\s)+?]\s*]/g);
+              var tbMatches = aData.match(/\["tb",0,(\[(?:\[(?:.|\s)+?\n\])*\n\])\n]/);
               this._log("\"tb\" match was " + (tbMatches ? "found" : "not found"));
               
-              if (tbMatches === null)
-                tbMatches = new Array();
-              
-              for (var i = 0; i < tbMatches.length; i++)
+              if (tbMatches && tbMatches.length > 1)
               {
-                var snippets = JSON.fromString(tbMatches[i]);
-                var offset = snippets[1];
-                var size = snippets[2];
-                
-                for (var j = 3; j < (size + 3); j++)
+                var snippets = JSON.fromString(tbMatches[1]);
+
+                for (var j = 0; j < snippets.length; j++)
                 {
                   // Check if the snippet is unread
                   if (snippets[j][3] == 0)
