@@ -12,6 +12,9 @@
 
 <overlay id="gmanager-overlay"
 		xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+	<!-- Firefox 4.0 / Gecko 2.0 helpfulled stopped including this... -->
+	<script type="application/x-javascript" src="chrome://global/content/nsDragAndDrop.js"/>
 		
 	<!-- Utilities -->
 	<script type="application/x-javascript" src="chrome://gmanager/content/utils/accounts.js"/>
