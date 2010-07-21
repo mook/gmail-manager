@@ -1,0 +1,29 @@
+/**
+ * gmAccount.idl
+ *
+ * Reverse engineered interface gmIAccount
+ */
+
+#include "gmService.idl"
+
+interface nsIDOMNode;
+
+[scriptable, uuid(d4676ee3-7e3c-455a-b417-37eaea3082ad)]
+interface gmIAccount : gmIService {
+  readonly attribute nsIDOMNode node;
+  readonly attribute ACString type;
+  readonly attribute ACString alias;
+  readonly attribute ACString password;
+  readonly attribute boolean newMail;
+  readonly attribute unsigned long unread;
+
+  boolean getBoolPref(in string aPrefName);
+  void setBoolPref(in string aPrefName, in boolean aValue);
+  string getCharPref(in string aPrefName);
+  void setCharPref(in string aPrefName, in string aValue);
+  unsigned long getIntPref(in string aPrefName);
+  void setIntPref(in string aPrefName, in unsigned long aValue);
+  void load(in nsIDOMNode aNode);
+  void savePassword(in ACString aPassword);
+  void removePassword();
+};

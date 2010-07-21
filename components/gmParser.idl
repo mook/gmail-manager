@@ -1,0 +1,20 @@
+/**
+ * gmParser.idl
+ *
+ * Reverse engineered interface gmIParser
+ */
+
+interface nsIDOMDocument;
+interface nsIDOMElement;
+interface nsIFile;
+
+#include "nsISupports.idl"
+
+[scriptable, uuid(d0fe9af0-f7bc-11da-974d-0800200c9a66)]
+interface gmIParser : nsISupports {
+  readonly attribute nsIDOMDocument emptyDoc;
+  readonly attribute nsIDOMElement globalNode;
+  readonly attribute nsIDOMElement accountNode;
+  nsIDOMDocument open(in nsIFile aFile);
+  boolean save(in nsIFile aFile, in nsIDOMDocument aDoc);
+};

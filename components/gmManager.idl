@@ -1,0 +1,34 @@
+/**
+ * gmManager.idl
+ *
+ * Reverse engineered interface gmIManager
+ */
+
+interface gmIAccount;
+interface nsIDOMNode;
+interface nsIFile;
+
+#include "nsISupports.idl"
+
+[scriptable, uuid(bf43b6d0-f7dd-11da-974d-0800200c9a66)]
+interface gmIManager : nsISupports {
+  readonly attribute ACString version;
+  readonly attribute gmIAccount global;
+  readonly attribute gmIAccount defaultGlobal;
+  readonly attribute gmIAccount defaultAccount;
+
+  void load();
+  void save();
+  boolean importPrefs(in nsIFile aFile);
+  boolean exportPrefs(in nsIFile aFile);
+  boolean isAccount(in ACString aEmail);
+  void getAccounts(out PRUint32 aCount,
+                   [retval, array, size_is(aCount)] out gmIAccount aAccounts);
+  gmIAccount getAccount(in ACString aEmail);
+  gmIAccount addAccount(in ACString aType,
+                        in ACString aEmail,
+                        in ACString aAlias,
+                        in ACString aPassword,
+                        in nsIDOMNode aNode);
+  void removeAccount(in ACString aEmail);
+};

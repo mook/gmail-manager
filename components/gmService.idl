@@ -1,0 +1,63 @@
+/**
+ * gmService.idl
+ *
+ * Various reverse engineered interfaces
+ */
+
+#include "nsISupports.idl"
+
+[scriptable, uuid(354095af-ef75-46ca-80a8-7187afec5c3c)]
+interface gmIServiceURI : nsISupports {
+  readonly attribute ACString url;
+  readonly attribute ACString data;
+};
+
+[scriptable, uuid(6329b514-5b84-2367-173c-92c7ed39aef4)]
+interface gmIServiceLabel : nsISupports {
+  readonly attribute AUTF8String name;
+  readonly attribute unsigned long unread;
+  readonly attribute unsigned long total;
+};
+
+[scriptable, uuid(8244fbe6-e443-8b94-32a8-e28fe6632c7d)]
+interface gmIServiceSnippet : nsISupports {
+  readonly attribute ACString id;
+  readonly attribute AUTF8String from;
+  readonly attribute AUTF8String subject;
+  readonly attribute AUTF8String msg;
+  readonly attribute ACString time;
+  readonly attribute ACString date;
+};
+
+[scriptable, uuid(e60eaba7-f367-4d13-974e-79ff61577007)]
+interface gmIService : nsISupports {
+  readonly attribute ACString email;
+  readonly attribute PRUint16 status;
+  readonly attribute boolean loggedIn;
+  readonly attribute boolean checking;
+  readonly attribute unsigned long inboxUnread;
+  readonly attribute unsigned long savedDrafts;
+  readonly attribute unsigned long spamUnread;
+  readonly attribute unsigned long spaceUsed;
+  readonly attribute unsigned long percentUsed;
+  readonly attribute unsigned long totalSpace;
+
+  void init(in ACString aEmail);
+  gmIServiceURI getInbox(in ACString aPassword);
+  gmIServiceURI getCompose(in ACString aPassword, in ACString aHref);
+  void login(in ACString aPassword);
+  void logout();
+  void check();
+  void resetUnread();
+  void getLabels(out PRUint32 aCount,
+                 [array, size_is(aCount), retval] out gmIServiceLabel aLabels);
+  void getSnippets(out PRUint32 aCount,
+                   [array, size_is(aCount), retval] out gmIServiceSnippet aSnippets);
+
+  const PRUint16 STATE_CONNECTING = 10;
+  const PRUint16 STATE_LOGGED_OUT = 20;
+  const PRUint16 STATE_LOGGED_IN = 21;
+  const PRUint16 STATE_ERROR_PASSWORD = 30;
+  const PRUint16 STATE_ERROR_NETWORK = 31;
+  const PRUint16 STATE_ERROR_TIMEOUT = 32;
+};

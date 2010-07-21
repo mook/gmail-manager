@@ -1,0 +1,14 @@
+/**
+ * gmServiceGmail.idl
+ *
+ * Reverse engineered interface gmIServiceGmail
+ */
+
+#include "gmService.idl"
+
+[scriptable, uuid(b07df9d0-f7dd-11da-974d-0800200c9a66)]
+interface gmIServiceGmail : gmIService {
+  readonly attribute boolean isHosted;
+  readonly attribute ACString username;
+  readonly attribute ACString domain;
+};

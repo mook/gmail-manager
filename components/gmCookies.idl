@@ -1,0 +1,13 @@
+/**
+ * gmCookies.idl
+ *
+ * Reverse engineered interface gmICookies
+ */
+
+#include "nsISupports.idl"
+
+[scriptable, uuid(81516840-f7dd-11da-974d-0800200c9a66)]
+interface gmICookies : nsISupports{
+  void loadSession(in ACString aHost);
+  void restoreSession(in ACString aHost);
+};
