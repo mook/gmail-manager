@@ -1,0 +1,8 @@
+This is a (hopefully) temporary fork of tmlong's Gmail Manager addon, to fix
+obviously broken things that make it difficult for me to use.  I do not plan on
+maintaining this long-term; expect it to be ignored and rot.  If you find any
+problems, please use the fork button on the github page.
+
+Hopefully he'll come back and update the addon again; in the mean time, since I
+already need to fix it for myself, I might as well put the changes up under the
+original tri-license (MPL 1.1/GPL 2.0/LGPL 2.1).
