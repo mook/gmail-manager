@@ -9,7 +9,7 @@
   mode against an "uninstalled" build.
 """
 
-import os, shutil, subprocess, zipfile
+import os, shutil, subprocess, time, zipfile
 
 # Clean out previous build
 if os.path.exists(".xpi-stage"):
@@ -98,7 +98,25 @@ for line in open("chrome.manifest", "r"):
             args[idx] = args[idx].replace("chrome/", "jar:gmanager.jar!/", 1)
         output.write(" ".join(args) + "\n")
     else:
-        output.write(line)
+        output.write(line + "\n")
+output.close()
+
+# Munge install.rdf version
+output = open(os.path.join(".xpi-stage", "install.rdf"), "w")
+for line in open("install.rdf", "r"):
+    line = line.rstrip()
+    index = line.find("</em:version>")
+    if index != -1:
+        username = ('USERNAME' in os.environ and os.environ['USERNAME'] or
+                    'USER' in os.environ and os.environ['USER'] or
+                    False)
+
+        line = "".join([line[:index],
+                        ".0.0.",
+                        time.strftime("%Y%m%d"),
+                        username and ("." + username.lower()) or "",
+                        line[index:]])
+    output.write(line + "\n")
 output.close()
 
 # Build XPI
