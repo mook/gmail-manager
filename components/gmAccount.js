@@ -308,14 +308,16 @@ gmAccount.prototype = {
     }
   },
   
-  getCompose: function(/* Optional */ aPassword, aHref)
+  getComposeAsync: function gmAccount_getComposeAsync(aCallback,
+                                                      /*optional*/ aPassword,
+                                                      /*optional*/ aHref)
   {
     if (this._service !== null)
     {
       if (aPassword == null)
         aPassword = this.password;
-      
-      return this._service.getCompose(aPassword, aHref);
+
+      this._service.getComposeAsync(aCallback, aPassword, aHref);
     }
   },
   

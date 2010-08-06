@@ -99,8 +99,9 @@ var gmanager_Accounts = new function()
     
     if (account)
     {
-      var compose = account.getCompose(null, aHref);
-      gmanager_Utils.loadURI(compose.url, null, compose.data, aLocation);
+      account.getComposeAsync(function(aCompose) {
+        gmanager_Utils.loadURI(aCompose.url, null, aCompose.data, aLocation);
+      }, null, aHref);
     }
     else
       gmanager_Utils.loadDefaultMail(aHref);

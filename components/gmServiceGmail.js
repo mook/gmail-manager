@@ -86,15 +86,24 @@ gmServiceGmail.prototype = {
     });
   },
 
-  getCompose: function(aPassword, aHref)
+  getComposeAsync: function gmServiceGmail_getComposeAsync(aCallback, aPassword, aHref)
   {
-    var href = (aHref ? aHref.replace("mailto:", "&to=").replace("subject=", "su=").replace(/ /g, "%20").replace("?", "&") : "");
-    var serviceURI = this._getServiceURI(aPassword, "view=cm&fs=1" + href);
-    
-    if (serviceURI.cookies !== null)
-      this._cookieLoader(serviceURI.cookies);
-    
-    return serviceURI;
+    var href = "";
+    if (aHref) {
+      href = aHref.replace("mailto:", "&to=")
+                  .replace("subject=", "su=")
+                  .replace(/ /g, "%20")
+                  .replace("?", "&");
+    }
+    var self = this;
+
+    this._getServiceURI(aPassword, "view=cm&fs=1" + href, function(aServiceURI) {
+
+      if (aServiceURI.cookies !== null)
+        self._cookieLoader(aServiceURI.cookies);
+
+      aCallback.onGetServiceURI(aServiceURI);
+    });
   },
   
   _getServiceURI: function gmServiceGmail_getServiceURI(aPassword,

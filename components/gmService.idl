@@ -34,7 +34,7 @@ interface gmIServiceSnippet : nsISupports {
   readonly attribute ACString date;
 };
 
-[scriptable, uuid(8892fbe2-1dd2-11b2-b030-cac441f26f60)]
+[scriptable, uuid(ba2650d0-9062-45dd-a4f6-48333f9cead8)]
 interface gmIService : nsISupports {
   readonly attribute ACString email;
   readonly attribute PRUint16 status;
@@ -48,16 +48,26 @@ interface gmIService : nsISupports {
   readonly attribute unsigned long totalSpace;
 
   void init(in ACString aEmail);
-  gmIServiceURI getCompose(in ACString aPassword, in ACString aHref);
 
   /**
    * Asynchronously get the inbox
-   * @param aCallback the callback to be triggered when the inbox URI has been
-   * found
+   * @param aCallback the callback to be triggered when the inbox URI has
+   *                  been found
    * @param aPassword the password; use null to use the saved one
    */
   void getInboxAsync(in gmIServiceURICallback aCallback,
                      [optional] in ACString aPassword);
+
+  /**
+   * Asynchronously get the data required to compose a message
+   * @param aCallback the callback to be triggered when the compose URI has
+   *                  been found
+   * @param aPassword the password; use null to used the saved one
+   * @param aHref the mailto: address to compose to
+   */
+  void getComposeAsync(in gmIServiceURICallback aCallback,
+                       [optional] in ACString aPassword,
+                       [optional] in ACString aHref);
 
   /**
    * Start the login process asynchronously
