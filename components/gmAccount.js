@@ -319,7 +319,7 @@ gmAccount.prototype = {
     }
   },
   
-  login: function(/* Optional */ aPassword)
+  login: function gmAccount_login(/* Optional */ aPassword)
   {
     if (this._service !== null)
     {

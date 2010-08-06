@@ -17,7 +17,8 @@ function gmanager_OverlayUnload(aEvent)
 function gmanager_ContentAreaClick(aEvent)
 {
   // Load the accounts manager
-  var manager = Components.classes["@longfocus.com/gmanager/manager;1"].getService(Components.interfaces.gmIManager);
+  var manager = Components.classes["@longfocus.com/gmanager/manager;1"]
+                                  .getService(Components.interfaces.gmIManager);
   var global = manager.global;
   var href = gmanager_Utils.getHref(aEvent.target);
   
@@ -57,16 +58,19 @@ function gmanager_ContentAreaClick(aEvent)
 
 var gmanager_Overlay = new function()
 {
-  this.load = function()
+  this.load = function gmanager_Overlay_load()
   {
     // Load the logger service
-    this._logger = Components.classes["@longfocus.com/gmanager/logger;1"].getService(Components.interfaces.gmILogger);
+    this._logger = Components.classes["@longfocus.com/gmanager/logger;1"]
+                             .getService(Components.interfaces.gmILogger);
     
     // Load the accounts manager
-    this._manager = Components.classes["@longfocus.com/gmanager/manager;1"].getService(Components.interfaces.gmIManager);
+    this._manager = Components.classes["@longfocus.com/gmanager/manager;1"]
+                              .getService(Components.interfaces.gmIManager);
     
     // Load the observers
-    var observer = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
+    var observer = Components.classes["@mozilla.org/observer-service;1"]
+                             .getService(Components.interfaces.nsIObserverService);
     observer.addObserver(this, gmanager_Prefs.NOTIFY_CHANGED, false);
     observer.addObserver(this, gmanager_Accounts.NOTIFY_STATE, false);
     
@@ -83,7 +87,8 @@ var gmanager_Overlay = new function()
   
   this.unload = function()
   {
-    var observer = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
+    var observer = Components.classes["@mozilla.org/observer-service;1"]
+                             .getService(Components.interfaces.nsIObserverService);
     try {
       // Remove the observers
       observer.removeObserver(this, gmanager_Prefs.NOTIFY_CHANGED);
@@ -102,7 +107,8 @@ var gmanager_Overlay = new function()
     
     if (version < "0.5")
     {
-      var prefService = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService);
+      var prefService = Components.classes["@mozilla.org/preferences-service;1"]
+                                  .getService(Components.interfaces.nsIPrefService);
       var prefBranch = prefService.getBranch("gmanager.");
       
       if (prefBranch.prefHasUserValue("accounts"))
@@ -115,10 +121,12 @@ var gmanager_Overlay = new function()
           
           if (!this._manager.isAccount(email))
           {
-            var password = gmanager_Utils.getStoredPassword("gmanager.gmail.account", accounts[i]);
-            
+            var password =
+              gmanager_Utils.getStoredPassword("gmanager.gmail.account",
+                                               accounts[i]);
+
             this._logger.log("Migrating email: " + email);
-            
+
             this._manager.addAccount("gmail", email, email, password, null);
           }
         }
@@ -156,7 +164,10 @@ var gmanager_Overlay = new function()
       
       // Open the migrate window if any passwords exist
       if (passwords && passwords.length > 0)
-        window.openDialog("chrome://gmanager/content/migrate/migrate.xul", "migrate", "centerscreen,chrome,resizable=yes", passwords);
+        window.openDialog("chrome://gmanager/content/migrate/migrate.xul",
+                          "migrate",
+                          "centerscreen,chrome,resizable=yes",
+                          passwords);
       
       // Mark the extension as having already run
       gmanager_Prefs.setBoolPref("first-time", false);
@@ -168,7 +179,7 @@ var gmanager_Overlay = new function()
     gmanager_Prefs.setCharPref("version", this._manager.version);
   }
   
-  this._loadAccounts = function(aInit)
+  this._loadAccounts = function gmanager_Overlay__loadAccounts(aInit)
   {
     var accounts = this._manager.getAccounts({});
     var isAutoLogin = this._manager.global.getBoolPref("general-auto-login");
@@ -197,8 +208,12 @@ var gmanager_Overlay = new function()
         activeToolbarPanels++;
       
       // Check if the account should automatically login
-      if (aInit && !account.loggedIn && (isAutoLogin || account.getBoolPref("general-auto-login")))
+      if (aInit &&
+          !account.loggedIn &&
+          (isAutoLogin || account.getBoolPref("general-auto-login")))
+      {
         account.login(null);
+      }
     }
     
     if (gmanager_Prefs.hasPref("current"))

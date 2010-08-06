@@ -98,7 +98,7 @@ gmServiceGmail.prototype = {
   _getServiceURI: function(aPassword, /* Optional */ aContinueData)
   {
     var serviceURI = new Object();
-    
+
     serviceURI.url = this._loginURL;
     serviceURI.data = "ltmpl=default&ltmplcache=2" + 
                       "&continue=" + encodeURIComponent(this._checkURL + (aContinueData || "")) + 
@@ -106,10 +106,11 @@ gmServiceGmail.prototype = {
                       "&Email=" + encodeURIComponent(this.isHosted ? this.username : this.email) + 
                       "&Passwd=" + encodeURIComponent(aPassword || this._password) + 
                       "&signIn=Sign+in";
-    
+
     try {
-      var xmlHttpRequest = Components.classes["@mozilla.org/xmlextras/xmlhttprequest;1"].createInstance(Components.interfaces.nsIXMLHttpRequest);
-      
+      var xmlHttpRequest = Cc["@mozilla.org/xmlextras/xmlhttprequest;1"]
+                             .createInstance(Ci.nsIXMLHttpRequest);
+
       // Send the HTTP request
       xmlHttpRequest.open("GET", this._loginURL, false);
       xmlHttpRequest.send(null);
@@ -215,7 +216,7 @@ gmServiceGmail.prototype = {
     }
   },
   
-  login: function(aPassword)
+  login: function gmServiceGmail_login(aPassword)
   {
     const emptyRegExp = /^\s*$/;
     
@@ -886,7 +887,8 @@ gmServiceGmail.prototype = {
       },
       
       onDataAvailable: function(aRequest, aContext, aStream, aSourceOffset, aLength) {
-        var scriptableInputStream = Components.classes["@mozilla.org/scriptableinputstream;1"].createInstance(Components.interfaces.nsIScriptableInputStream);
+        var scriptableInputStream = Cc["@mozilla.org/scriptableinputstream;1"]
+                                      .createInstance(Ci.nsIScriptableInputStream);
         scriptableInputStream.init(aStream);
         this._data += scriptableInputStream.read(aLength);
       },
@@ -920,16 +922,11 @@ gmServiceGmail.prototype = {
         }
       },
       
-      QueryInterface: function(aIID) {
-        if (aIID.equals(Components.interfaces.nsIStreamListener) || 
-            aIID.equals(Components.interfaces.nsIChannelEventSink) || 
-            aIID.equals(Components.interfaces.nsIProgressEventSink) || 
-            aIID.equals(Components.interfaces.nsIHttpEventSink) || 
-            aIID.equals(Components.interfaces.nsIInterfaceRequestor) || 
-            aIID.equals(Components.interfaces.nsISupports))
-          return this;
-        throw Components.results.NS_ERROR_NO_INTERFACE;
-      }
+      QueryInterface: XPCOMUtils.generateQI([Ci.nsIStreamListener,
+                                             Ci.nsIChannelEventSink,
+                                             Ci.nsIProgressEventSink,
+                                             Ci.nsIHttpEventSink,
+                                             Ci.nsIInterfaceRequestor])
     });
   },
   
