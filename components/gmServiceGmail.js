@@ -95,7 +95,9 @@ gmServiceGmail.prototype = {
     return serviceURI;
   },
   
-  _getServiceURI: function(aPassword, /* Optional */ aContinueData)
+  _getServiceURI: function gmServiceGmail_getServiceURI(aPassword,
+                                                        /* Optional */ aContinueData,
+                                                        /* Optional */ aAsyncCallback)
   {
     var serviceURI = new Object();
 
@@ -112,42 +114,62 @@ gmServiceGmail.prototype = {
                              .createInstance(Ci.nsIXMLHttpRequest);
 
       // Send the HTTP request
-      xmlHttpRequest.open("GET", this._loginURL, false);
-      xmlHttpRequest.send(null);
-      
-      if (xmlHttpRequest.status === 200)
-      {
-        // Get the HTTP channel
-        var httpChannel = xmlHttpRequest.channel.QueryInterface(Components.interfaces.nsIHttpChannel);
-        
-        // Digest the HTTP response cookies
-        serviceURI.cookies = this._cookieMonster(httpChannel);
-        
-        // Get the login form
-        var formMatches = xmlHttpRequest.responseText.match(/<form[^>]+?id=["']gaia_loginform["']((?:.|\s)+?)<\/form>/i);
-        this._log("\"form\" match was " + (formMatches ? "found" : "not found"));
-        
-        if (formMatches !== null) {
-          // Get the hidden inputs
-          var inputMatches = (formMatches[1].match(/<input[^>]+?type=["']hidden["'][^>]+?\/>/ig) || []);
-          this._log("\"input\" matches were " + (inputMatches.length > 0 ? "found" : "not found"));
+      xmlHttpRequest.open("GET", this._loginURL, aAsyncCallback ? true : false);
+
+      var self = this;
+      function gmServiceGmail_getServiceURI_processresult() {
+        if (xmlHttpRequest.readyState == 4 && xmlHttpRequest.status === 200) {
+          // Get the HTTP channel
+          var httpChannel = xmlHttpRequest.channel.QueryInterface(Ci.nsIHttpChannel);
           
-          for (var i = 0; i < inputMatches.length; i++)
-          {
-            // Get the input name attribute
-            var inputName = inputMatches[i].match(/name=["']((?:.|\s)+?)["']/i);
-            this._log("\"name\" match was " + (inputName ? "found" : "not found"));
+          // Digest the HTTP response cookies
+          serviceURI.cookies = self._cookieMonster(httpChannel);
+          
+          // Get the login form
+          var formMatches = xmlHttpRequest.responseText.match(/<form[^>]+?id=["']gaia_loginform["']((?:.|\s)+?)<\/form>/i);
+          self._log("\"form\" match was " + (formMatches ? "found" : "not found"));
+          
+          if (formMatches !== null) {
+            // Get the hidden inputs
+            var inputMatches = (formMatches[1].match(/<input[^>]+?type=["']hidden["'][^>]+?\/>/ig) || []);
+            self._log("\"input\" matches were " + (inputMatches.length > 0 ? "found" : "not found"));
             
-            if (inputName !== null && inputName[1] === "GALX")
+            for (var i = 0; i < inputMatches.length; i++)
             {
-              // Build the input name/value pair
-              var inputValue = inputMatches[i].match(/value=["']((?:.|\s)*?)["']/i);
-              var inputPair = inputName[1] + "=" + inputValue[1];
-              this._log("inputPair = " + inputPair);
-              serviceURI.data += "&" + inputPair;
+              // Get the input name attribute
+              var inputName = inputMatches[i].match(/name=["']((?:.|\s)+?)["']/i);
+              self._log("\"name\" match was " + (inputName ? "found" : "not found"));
+              
+              if (inputName !== null && inputName[1] === "GALX")
+              {
+                // Build the input name/value pair
+                var inputValue = inputMatches[i].match(/value=["']((?:.|\s)*?)["']/i);
+                var inputPair = inputName[1] + "=" + inputValue[1];
+                self._log("inputPair = " + inputPair);
+                serviceURI.data += "&" + inputPair;
+              }
+            }
+          }
+          if (aAsyncCallback) {
+            try {
+              aAsyncCallback(serviceURI);
+            }
+            catch (e) {
+              self._log("Error calling async callback: " + e);
             }
           }
         }
+      }
+
+      if (aAsyncCallback) {
+        xmlHttpRequest.onreadystatechange = gmServiceGmail_getServiceURI_processresult;
+        xmlHttpRequest.send(null);
+      }
+      else {
+        this._log("Warning: Using synchronous XHR! Needs fixing!\n\n" +
+                  (new Error).stack);
+        xmlHttpRequest.send(null);
+        gmServiceGmail_getServiceURI_processresult();
       }
     } catch(e) {
       this._log("Error sending the HTTP request: " + e);
@@ -233,17 +255,19 @@ gmServiceGmail.prototype = {
     else
     {
       // Get the connection details
-      var serviceURI = this._getServiceURI(aPassword, "labs=0");
-      
-      // Setup the cookies
-      this._cookies = serviceURI.cookies;
-      
-      // Save the password in case of connection timeout
-      this._password = aPassword;
-      
-      // Set checking and send the server request
-      this._setChecking(true);
-      this._serverRequest(serviceURI.url, serviceURI.data);
+      var self = this;
+      function gmServiceGmail_login_callback(serviceURI) {
+        // Setup the cookies
+        self._cookies = serviceURI.cookies;
+        
+        // Save the password in case of connection timeout
+        self._password = aPassword;
+        
+        // Set checking and send the server request
+        self._setChecking(true);
+        self._serverRequest(serviceURI.url, serviceURI.data);
+      }
+      this._getServiceURI(aPassword, "labs=0", gmServiceGmail_login_callback);
     }
   },
   
