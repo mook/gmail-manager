@@ -73,17 +73,19 @@ gmServiceGmail.prototype = {
   get spaceUsed() { return this._spaceUsed; },
   get percentUsed() { return this._percentUsed; },
   get totalSpace() { return this._totalSpace; },
-  
-  getInbox: function(aPassword)
+
+  getInboxAsync: function gmServiceGmail_getInboxAsync(aCallback, aPassword)
   {
-    var serviceURI = this._getServiceURI(aPassword);
-    
-    if (serviceURI.cookies !== null)
-      this._cookieLoader(serviceURI.cookies);
-    
-    return serviceURI;
+    var self = this;
+    this._getServiceURI(aPassword, null, function(aServiceURI) {
+
+      if (aServiceURI.cookies !== null)
+        self._cookieLoader(aServiceURI.cookies);
+
+      aCallback.onGetServiceURI(aServiceURI);
+    });
   },
-  
+
   getCompose: function(aPassword, aHref)
   {
     var href = (aHref ? aHref.replace("mailto:", "&to=").replace("subject=", "su=").replace(/ /g, "%20").replace("?", "&") : "");
@@ -158,6 +160,8 @@ gmServiceGmail.prototype = {
               self._log("Error calling async callback: " + e);
             }
           }
+          delete self;
+          delete xmlHttpRequest;
         }
       }
 
@@ -960,6 +964,7 @@ gmServiceGmail.prototype = {
   },
   
   QueryInterface: XPCOMUtils.generateQI([Ci.gmIServiceGmail,
+                                         Ci.gmIService,
                                          Ci.nsIObserver]),
   classID: Components.ID("{b07df9d0-f7dd-11da-974d-0800200c9a66}"),
   classDescription: "Gmail Account Service",

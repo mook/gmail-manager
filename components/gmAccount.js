@@ -296,15 +296,15 @@ gmAccount.prototype = {
     if (this._service !== null)
       this._service.init(aEmail);
   },
-  
-  getInbox: function(/* Optional */ aPassword)
+
+  getInboxAsync: function gmAccount_getInboxAsync(aCallback, aPassword)
   {
     if (this._service !== null)
     {
-      if (aPassword == null)
+      if (aPassword === null)
         aPassword = this.password;
-      
-      return this._service.getInbox(aPassword);
+
+      this._service.getInboxAsync(aCallback, aPassword);
     }
   },
   
@@ -396,6 +396,7 @@ gmAccount.prototype = {
   },
   
   QueryInterface: XPCOMUtils.generateQI([Ci.gmIAccount,
+                                         Ci.gmIService,
                                          Ci.nsITimerCallback]),
   classID: Components.ID("{d4676ee3-7e3c-455a-b417-37eaea3082ad}"),
   classDescription: "Mail Account",

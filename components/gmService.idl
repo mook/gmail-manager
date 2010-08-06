@@ -12,6 +12,11 @@ interface gmIServiceURI : nsISupports {
   readonly attribute ACString data;
 };
 
+[scriptable, function, uuid(0e1577c0-1dd2-11b2-8607-87ca03f48e62)]
+interface gmIServiceURICallback : nsISupports {
+  void onGetServiceURI(in gmIServiceURI aServiceURI);
+};
+
 [scriptable, uuid(6329b514-5b84-2367-173c-92c7ed39aef4)]
 interface gmIServiceLabel : nsISupports {
   readonly attribute AUTF8String name;
@@ -29,7 +34,7 @@ interface gmIServiceSnippet : nsISupports {
   readonly attribute ACString date;
 };
 
-[scriptable, uuid(e60eaba7-f367-4d13-974e-79ff61577007)]
+[scriptable, uuid(8892fbe2-1dd2-11b2-b030-cac441f26f60)]
 interface gmIService : nsISupports {
   readonly attribute ACString email;
   readonly attribute PRUint16 status;
@@ -43,8 +48,20 @@ interface gmIService : nsISupports {
   readonly attribute unsigned long totalSpace;
 
   void init(in ACString aEmail);
-  gmIServiceURI getInbox(in ACString aPassword);
   gmIServiceURI getCompose(in ACString aPassword, in ACString aHref);
+
+  /**
+   * Asynchronously get the inbox
+   * @param aCallback the callback to be triggered when the inbox URI has been
+   * found
+   * @param aPassword the password; use null to use the saved one
+   */
+  void getInboxAsync(in gmIServiceURICallback aCallback,
+                     [optional] in ACString aPassword);
+
+  /**
+   * Start the login process asynchronously
+   */
   void login(in ACString aPassword);
   void logout();
   void check();

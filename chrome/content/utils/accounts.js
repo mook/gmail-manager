@@ -87,8 +87,9 @@ var gmanager_Accounts = new function()
     
     if (account)
     {
-      var inbox = account.getInbox(null);
-      gmanager_Utils.loadURI(inbox.url, null, inbox.data, aLocation);
+      account.getInboxAsync(function(aInbox) {
+        gmanager_Utils.loadURI(aInbox.url, null, aInbox.data, aLocation);
+      });
     }
   }
   
