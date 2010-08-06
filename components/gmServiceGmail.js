@@ -899,6 +899,11 @@ gmServiceGmail.prototype = {
       onChannelRedirect: function (aOldChannel, aNewChannel, aFlags) {
         aThis._channel = aNewChannel;
       },
+
+      asyncOnChannelRedirect: function (aOldChannel, aNewChannel, aFlags, aCallback) {
+        aThis._channel = aNewChannel;
+        aCallback.onRedirectVerifyCallback(Components.results.NS_OK);
+      },
       
       /**
        * nsIProgressEventSink
