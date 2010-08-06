@@ -87,8 +87,8 @@ var gmanager_Accounts = new function()
     
     if (account)
     {
-      account.getInboxAsync(function(aInbox) {
-        gmanager_Utils.loadURI(aInbox.url, null, aInbox.data, aLocation);
+      account.getInboxAsync(function(aURL, aData) {
+        gmanager_Utils.loadURI(aURL, null, aData, aLocation);
       });
     }
   }
@@ -99,8 +99,8 @@ var gmanager_Accounts = new function()
     
     if (account)
     {
-      account.getComposeAsync(function(aCompose) {
-        gmanager_Utils.loadURI(aCompose.url, null, aCompose.data, aLocation);
+      account.getComposeAsync(function(aURL, aData) {
+        gmanager_Utils.loadURI(aURL, null, aData, aLocation);
       }, null, aHref);
     }
     else

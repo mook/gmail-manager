@@ -77,13 +77,13 @@ gmServiceGmail.prototype = {
   getInboxAsync: function gmServiceGmail_getInboxAsync(aCallback, aPassword)
   {
     var self = this;
-    this._getServiceURI(aPassword, null, function(aServiceURI) {
+    this._getServiceURI(function(aURL, aData, aCookies) {
 
-      if (aServiceURI.cookies !== null)
-        self._cookieLoader(aServiceURI.cookies);
+      if (aCookies !== null)
+        self._cookieLoader(aCookies);
 
-      aCallback.onGetServiceURI(aServiceURI);
-    });
+      aCallback.onGetService(aURL, aData);
+    }, aPassword);
   },
 
   getComposeAsync: function gmServiceGmail_getComposeAsync(aCallback, aPassword, aHref)
@@ -97,18 +97,18 @@ gmServiceGmail.prototype = {
     }
     var self = this;
 
-    this._getServiceURI(aPassword, "view=cm&fs=1" + href, function(aServiceURI) {
+    this._getServiceURI(function(aURL, aData, aCookies) {
 
-      if (aServiceURI.cookies !== null)
-        self._cookieLoader(aServiceURI.cookies);
+      if (aCookies !== null)
+        self._cookieLoader(aCookies);
 
-      aCallback.onGetServiceURI(aServiceURI);
-    });
+      aCallback.onGetService(aURL, aData);
+    }, aPassword, "view=cm&fs=1" + href);
   },
   
-  _getServiceURI: function gmServiceGmail_getServiceURI(aPassword,
-                                                        /* Optional */ aContinueData,
-                                                        /* Optional */ aAsyncCallback)
+  _getServiceURI: function gmServiceGmail_getServiceURI(aAsyncCallback,
+                                                        /* Optional */ aPassword,
+                                                        /* Optional */ aContinueData)
   {
     var serviceURI = new Object();
 
@@ -161,29 +161,19 @@ gmServiceGmail.prototype = {
               }
             }
           }
-          if (aAsyncCallback) {
-            try {
-              aAsyncCallback(serviceURI);
-            }
-            catch (e) {
-              self._log("Error calling async callback: " + e);
-            }
+          try {
+            aAsyncCallback(serviceURI.url, serviceURI.data, serviceURI.cookies);
+          }
+          catch (e) {
+            self._log("Error calling async callback: " + e);
           }
           delete self;
           delete xmlHttpRequest;
         }
       }
 
-      if (aAsyncCallback) {
-        xmlHttpRequest.onreadystatechange = gmServiceGmail_getServiceURI_processresult;
-        xmlHttpRequest.send(null);
-      }
-      else {
-        this._log("Warning: Using synchronous XHR! Needs fixing!\n\n" +
-                  (new Error).stack);
-        xmlHttpRequest.send(null);
-        gmServiceGmail_getServiceURI_processresult();
-      }
+      xmlHttpRequest.onreadystatechange = gmServiceGmail_getServiceURI_processresult;
+      xmlHttpRequest.send(null);
     } catch(e) {
       this._log("Error sending the HTTP request: " + e);
     }
@@ -267,20 +257,21 @@ gmServiceGmail.prototype = {
     }
     else
     {
+      // Save the password in case of connection timeout
+      this._password = aPassword;
+
+      this._setChecking(true);
+
       // Get the connection details
       var self = this;
-      function gmServiceGmail_login_callback(serviceURI) {
+      function gmServiceGmail_login_callback(aURL, aData, aCookies) {
         // Setup the cookies
-        self._cookies = serviceURI.cookies;
-        
-        // Save the password in case of connection timeout
-        self._password = aPassword;
+        self._cookies = aCookies;
         
         // Set checking and send the server request
-        self._setChecking(true);
-        self._serverRequest(serviceURI.url, serviceURI.data);
+        self._serverRequest(aURL, aData);
       }
-      this._getServiceURI(aPassword, "labs=0", gmServiceGmail_login_callback);
+      this._getServiceURI(gmServiceGmail_login_callback, aPassword, "labs=0");
     }
   },
   

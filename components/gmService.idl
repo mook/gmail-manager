@@ -6,15 +6,10 @@
 
 #include "nsISupports.idl"
 
-[scriptable, uuid(354095af-ef75-46ca-80a8-7187afec5c3c)]
-interface gmIServiceURI : nsISupports {
-  readonly attribute ACString url;
-  readonly attribute ACString data;
-};
-
 [scriptable, function, uuid(0e1577c0-1dd2-11b2-8607-87ca03f48e62)]
-interface gmIServiceURICallback : nsISupports {
-  void onGetServiceURI(in gmIServiceURI aServiceURI);
+interface gmIServiceCallback : nsISupports {
+  void onGetService(in ACString url,
+                    in ACString data);
 };
 
 [scriptable, uuid(6329b514-5b84-2367-173c-92c7ed39aef4)]
@@ -55,7 +50,7 @@ interface gmIService : nsISupports {
    *                  been found
    * @param aPassword the password; use null to use the saved one
    */
-  void getInboxAsync(in gmIServiceURICallback aCallback,
+  void getInboxAsync(in gmIServiceCallback aCallback,
                      [optional] in ACString aPassword);
 
   /**
@@ -65,7 +60,7 @@ interface gmIService : nsISupports {
    * @param aPassword the password; use null to used the saved one
    * @param aHref the mailto: address to compose to
    */
-  void getComposeAsync(in gmIServiceURICallback aCallback,
+  void getComposeAsync(in gmIServiceCallback aCallback,
                        [optional] in ACString aPassword,
                        [optional] in ACString aHref);
 
