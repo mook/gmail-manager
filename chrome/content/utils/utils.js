@@ -186,7 +186,8 @@ var gmanager_Utils = new function()
         if ((target instanceof HTMLAnchorElement && target.href) ||
             target instanceof HTMLAreaElement ||
             target instanceof HTMLLinkElement ||
-            target.getAttributeNS("http://www.w3.org/1999/xlink", "type") == "simple")
+            (("getAttributeNS" in target) &&
+             target.getAttributeNS("http://www.w3.org/1999/xlink", "type") == "simple"))
           link = target;
       } catch(e) {}
       target = target.parentNode;
