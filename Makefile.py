@@ -9,6 +9,8 @@
   mode against an "uninstalled" build.
 """
 
+VERSION = "0.1"
+
 import os, shutil, subprocess, time, zipfile
 
 # Clean out previous build
@@ -112,7 +114,7 @@ for line in open("install.rdf", "r"):
                     False)
 
         line = "".join([line[:index],
-                        ".0.0.",
+                        ".", VERSION, ".",
                         time.strftime("%Y%m%d"),
                         username and ("." + username.lower()) or "",
                         line[index:]])
