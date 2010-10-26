@@ -83,6 +83,10 @@ var gmanager_Overlay = new function()
     
     // Toggle the Tools Menu
     this._toggleToolsMenu();
+
+    // Hook up the click handler
+    var windowContent = window.document.getElementById("content");
+    windowContent.addEventListener("click", gmanager_ContentAreaClick, false);
   }
   
   this.unload = function()
