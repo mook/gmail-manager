@@ -778,10 +778,13 @@ gmServiceGmail.prototype = {
             if (isLatest)
             {
               // Snippets
-              var tbMatches = aData.match(/\["tb",0,(\[(?:\[(?:.|\s)+?\n\])*\n\])\n]/);
+              var tbRE = /\["tb",0,(\[(?:\[(?:.|\s)+?\n\])*\n\])\n]/g;
+              var tbMatches = tbRE.exec(aData);
               this._log("\"tb\" match was " + (tbMatches ? "found" : "not found"));
               
-              if (tbMatches && tbMatches.length > 1)
+              // with multiple inboxes and priority inbox, we now need to loop
+              // over multiple "tb" matches and take all of them into account
+              while (tbMatches && tbMatches.length > 1)
               {
                 var snippets = JSON.fromString(tbMatches[1]);
 
@@ -801,6 +804,8 @@ gmServiceGmail.prototype = {
                     });
                   }
                 }
+                tbMatches = tbRE.exec(aData);
+                this._log("\"tb\" match was " + (tbMatches ? "found" : "not found"));
               }
             }
             else
