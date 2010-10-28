@@ -703,25 +703,29 @@ gmServiceGmail.prototype = {
             // Check which Gmail version
             if (isLatest)
             {
-              // Inbox/Drafts/Spam/Labels
+              // Figure out the unread counts
               var ldMatches = JSON.fromString(aData.match(/\["ld",(.|\s)+?(\[|])(\s*]){2}/)[0]);
               this._log("\"ld\" match was " + (ldMatches ? "found" : "not found"));
+             
+              // Special labels: inbox, drafts, spam
+              ldMatches[1].forEach(function(bucket) {
+                const K_LABEL_MAP = {"^i": "_inboxUnread",
+                                     "^r": "_savedDrafts",
+                                     "^s": "_spamUnread"};
+                if (bucket[0] in K_LABEL_MAP) {
+                  // this is a special label we care about
+                  this[K_LABEL_MAP[bucket[0]]] = Math.max(0, bucket[1]);
+                }
+              }, this);
               
-              with (Math)
-              {
-                this._inboxUnread = max(0, ldMatches[1][0][1]);
-                this._savedDrafts = max(0, ldMatches[1][4][1]);
-                this._spamUnread = max(0, ldMatches[1][6][1]);
-              }
-              
-              for (var i = 0; i < ldMatches[2].length; i++)
-              {
+              // Normal labels
+              ldMatches[2].forEach(function(bucket) {
                 this._labels.push({
-                  "name" : ldMatches[2][i][0], 
-                  "unread" : ldMatches[2][i][1], 
-                  "total" : ldMatches[2][i][2]
+                  "name" : bucket[0], 
+                  "unread" : bucket[1], 
+                  "total" : bucket[2]
                 });
-              }
+              }, this);
             }
             else
             {
