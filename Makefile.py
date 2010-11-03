@@ -18,7 +18,7 @@ if os.path.exists(".xpi-stage"):
     shutil.rmtree(".xpi-stage")
 
 # Create the staging area
-os.mkdir(".xpi-stage", 0755)
+os.mkdir(".xpi-stage", 493) # 0o755
 
 # Build the chrome jar
 jar = zipfile.ZipFile(os.path.join(".xpi-stage", "gmanager.jar"),
@@ -134,4 +134,4 @@ for (dirpath, dirnames, filenames) in os.walk(".xpi-stage"):
         xpi.write(pathname, pathname.replace(".xpi-stage" + os.sep, "", 1))
 xpi.close()
 
-print "Build complete."
+print("Build complete.")
