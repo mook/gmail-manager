@@ -40,7 +40,7 @@ var gmanager_Login = new function()
   this.dialogAccept = function()
   {
     const emailRegExp = /^.+@.+\..+$/;
-    const passwordRegExp = /^\S+$/;
+    const passwordRegExp = /^.+$/;
     
     var errors = new Array();
     var email = document.getElementById("gmanager-login-email-textbox").value;
