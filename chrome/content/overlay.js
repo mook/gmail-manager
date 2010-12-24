@@ -153,9 +153,6 @@ var gmanager_Overlay = new function()
         var current = gmanager_Prefs.getCharPref("current");
         var account = this._manager.getAccount(current);
         
-        // Set the account to be displayed
-        account.setBoolPref("toolbar-display", true);
-        
         // Save the accounts
         this._manager.save();
       }

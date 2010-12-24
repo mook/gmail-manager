@@ -79,35 +79,6 @@
 			<!-- Toolbar -->
 			<tabpanel orient="vertical">
 				<groupbox>
-					<caption label="&options-account-toolbar-display-placement;"/>
-					
-					<hbox align="center">
-						<checkbox id="gm-prefs-toolbar-display"
-								label="&options-account-toolbar-display-toolbar;:"/>
-								
-						<menulist>
-							<menupopup id="gm-prefs-toolbar-toolbar-id"/>
-						</menulist>
-					</hbox>
-					
-					<radiogroup id="gm-prefs-toolbar-placement"
-								class="gmanager-indent">
-								
-						<radio label="&options-account-toolbar-always-last;"
-							value="always-last"/>
-							
-						<hbox align="center">
-							<radio label="&options-account-toolbar-specific-position;:"
-								value="specific-position"/>
-								
-							<textbox id="gm-prefs-toolbar-specific-position"
-									size="2"
-									type="number"/>
-						</hbox>
-					</radiogroup>
-				</groupbox>
-				
-				<groupbox>
 					<caption label="&options-toolbar-selected-account;"/>
 					
 					<checkbox id="gm-prefs-toolbar-account-hide-unread-count"

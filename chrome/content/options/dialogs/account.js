@@ -30,17 +30,6 @@ var gmanager_OptionsAccount = new function()
       window.close();
     }
     
-    var toolbar = document.getElementById("gm-prefs-toolbar-toolbar-id");
-    var toolbars = gmanager_Utils.getToolbars();
-    
-    for (var i = 0; i < toolbars.length; i++)
-    {
-      var menuitem = document.createElement("menuitem");
-      menuitem.setAttribute("label", toolbars[i].id);
-      menuitem.setAttribute("value", toolbars[i].id);
-      toolbar.appendChild(menuitem);
-    }
-    
     // Display the email (if available)
     document.getElementById("gmanager-options-account-email").value = this._account.email;
     document.getElementById("gmanager-options-account-email").disabled = this._email;
@@ -64,12 +53,6 @@ var gmanager_OptionsAccount = new function()
     // Account
     document.getElementById("gmanager-options-account-alias").disabled = (document.getElementById("gmanager-options-account-email").value == "");
     document.getElementById("gmanager-options-account-password").disabled = (document.getElementById("gmanager-options-account-email").value == "");
-    
-    // Toolbar display
-    var isToolbar = document.getElementById("gm-prefs-toolbar-display").checked;
-    document.getElementById("gm-prefs-toolbar-toolbar-id").parentNode.disabled = !isToolbar;
-    document.getElementById("gm-prefs-toolbar-placement").disabled = !isToolbar;
-    document.getElementById("gm-prefs-toolbar-specific-position").disabled = (!isToolbar || document.getElementById("gm-prefs-toolbar-placement").value != "specific-position");
     
     // Check messages
     var isCheck = document.getElementById("gm-prefs-notifications-check").checked;
