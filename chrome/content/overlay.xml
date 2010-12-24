@@ -4,6 +4,7 @@
   Gmail Manager
   By Todd Long <longfocus@gmail.com>
   http://www.longfocus.com/firefox/gmanager/
+  /* vim: set noet sw=4 tab=4 : */
  -->
 
 <bindings xmlns="http://www.mozilla.org/xbl"
@@ -11,9 +12,12 @@
 		xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 		
 	<binding id="gmanager-account-info">
-		<content context="_child" tooltip="_child">
-			<children includes="menupopup|tooltip"/>
-			
+		<content context="_child"
+				 tooltip="gmanager-toolbar-tooltip"
+				 hidden="true"
+				 icontype="gmail"
+				 status="logged-out"
+				 onclick="gmanager_ToolbarClick.click(event);">
 			<xul:hbox align="center">
 				<xul:image class="gmanager-icon"
 						xbl:inherits="iconsize,icontype,status,newMail"/>
@@ -26,29 +30,33 @@
 						value=""
 						xbl:inherits="value=alias"/>
 			</xul:hbox>
+			<xul:menupopup position="after_start"
+						   onclick="event.stopPropagation();"
+						   onpopupshowing="return gmanager_ToolbarMenu.buildMenu(this);"/>
 		</content>
 		
-		<implementation implements="nsIObserver">
+		<implementation>
 			<constructor>
-			  <![CDATA[
-			    var observer = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
-			    observer.addObserver(this, gmanager_Accounts.NOTIFY_STATE, false);
-			  ]]>
+				var self = this;
+				document.documentElement
+				        .addEventListener(gmanager_Accounts.NOTIFY_STATE,
+										  function(e) self._onNotifyState(e),
+										  false);
+				
+				var tooltip = document.getAnonymousElementByAttribute(this, "anonid", "tooltip");
+				if (tooltip) {
+					this.removeChild(tooltip);
+					this.appendChild(tooltip);
+				}
 			</constructor>
-			
-			<destructor>
-			  <![CDATA[
-			    this.destroy();
-			  ]]>
-			</destructor>
-			
 			<property name="account"
 					onget="return this._account;">
 					
 				<setter>
 				  <![CDATA[
 				    this._account = val;
-				    this.setAttribute("id", "gmanager-toolbar-panel-" + val.email);
+				    this.setAttribute("id",
+									  "gmanager-toolbar-panel-" + val.email);
 				    this.updatePosition();
 				  ]]>
 				</setter>
@@ -64,20 +72,6 @@
 				  ]]>
 				</setter>
 			</property>
-			
-			<method name="destroy">
-				<body>
-				  <![CDATA[
-				    try {
-				      var observer = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
-				      observer.removeObserver(this, gmanager_Accounts.NOTIFY_STATE);
-				    } catch(e) {}
-				    
-				    if (this.parentNode)
-				      this.parentNode.removeChild(this);
-				  ]]>
-				</body>
-			</method>
 			
 			<method name="updateDisplay">
 				<body>
@@ -101,20 +95,41 @@
 				  <![CDATA[
 				    if (this._account)
 				    {
+					  var toolbox = document.getElementById("navigator-toolbox");
+					  toolbox.palette.appendChild(this);
 				      var isToolbarDisplay = this._account.getBoolPref("toolbar-display");
 				      
 				      if (isToolbarDisplay)
 				      {
-				        var toolbar = document.getElementById(this._account.getCharPref("toolbar-toolbar-id"));
+						var toolbarid = this._account.getCharPref("toolbar-toolbar-id");
+						if (toolbarid == "status-bar")
+						{
+							// transition to addon-bar for firefox 4
+							toolbarid = "addon-bar";
+						}
+				        var toolbar = document.getElementById(toolbarid);
 				        var toolbarPosition = this._account.getIntPref("toolbar-specific-position");
 				        
 				        if (toolbar === null)
-				          toolbar = document.getElementById("status-bar");
+				          toolbar = document.getElementById("addon-bar");
+						
 				        
-				        if (this._account.getCharPref("toolbar-placement") == "always-last" || (toolbar.childNodes && toolbar.childNodes.length <= toolbarPosition))
-				          toolbar.appendChild(this);
-				        else
-				          toolbar.insertBefore(this, toolbar.childNodes[toolbarPosition]);
+						var placement = this._account.getCharPref("toolbar-placement");
+						if (placement == "always-last")
+						{
+							// always-last - insert at the end
+							toolbar.insertItem(this.id, null, false);
+						}
+						else if (/^\d+$/.test(placement))
+						{
+							// insert based on numerical index...
+							toolbar.insertItem(this.id, toolbar.childNodes[toolbarPosition]);
+						}
+						else
+						{
+							// insert based on id of element
+							Components.utils.reportError("not yet handling toolbar [" + placement + "]")
+						}
 				      }
 				      
 				      this.setAttribute("hidden", !isToolbarDisplay);
@@ -122,25 +137,18 @@
 				  ]]>
 				</body>
 			</method>
-			
-			<method name="observe">
-				<parameter name="aSubject"/>
-				<parameter name="aTopic"/>
-				<parameter name="aData"/>
+			<method name="_onNotifyState">
+				<parameter name="event"/>
 				<body>
-				  <![CDATA[
-				    if (aTopic == gmanager_Accounts.NOTIFY_STATE)
-				    {
-				      // aSubject : null
-				      // aTopic   : gmanager_Accounts.NOTIFY_STATE
-				      // aData    : email|status (e.g. longfocus@gmail.com|10)
-				      
-				      var email = (aData ? aData.split("|")[0] : null);
-				      
-				      if (this._displayAccount && this._displayAccount.email == email)
-				        this.updateDisplay();
-				    }
-				  ]]>
+				<![CDATA[
+					// This is a forwarded gmanager_Accounts.NOTIFY_STATE observer
+					// notification, with data:
+					//    email|status (e.g. longfocus@gmail.com|10)
+					var email = event.getData("data").split("|")[0];
+	
+					if (this._displayAccount && this._displayAccount.email == email)
+					  this.updateDisplay();
+				]]>
 				</body>
 			</method>
 		</implementation>

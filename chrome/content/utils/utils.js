@@ -82,9 +82,7 @@ var gmanager_Utils = new function()
   
   this.isAccountToolbar = function(aNode)
   {
-    if (aNode && aNode.hasAttribute("id"))
-      return (aNode.getAttribute("id").indexOf("gmanager-toolbar-panel") == 0);
-    return false;
+    return aNode && /^gmanager-toolbar-panel/.test(aNode.getAttribute("id"));
   }
   
   this.getStoredPassword = function(aSite, aUsername)

@@ -8,8 +8,9 @@ var gmanager_ToolbarTooltip = new function()
   
   this.buildTooltip = function(aTooltip)
   {
+    var toolbaritem = document.tooltipNode;
     var manager = Components.classes["@longfocus.com/gmanager/manager;1"].getService(Components.interfaces.gmIManager);
-    var account = aTooltip.parentNode.displayAccount;
+    var account = toolbaritem.displayAccount;
     
     // Clear the menu
     gmanager_Utils.clearKids(aTooltip);
@@ -33,7 +34,7 @@ var gmanager_ToolbarTooltip = new function()
       aTooltip.appendChild(this._buildMessage(account));
     }
     
-    return !gmanager_ToolbarMove.isActive();
+    return true;
   }
   
   this._buildAccountHeader = function(aAccount)

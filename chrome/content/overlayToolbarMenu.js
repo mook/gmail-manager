@@ -209,9 +209,6 @@ var gmanager_ToolbarMenu = new function()
       if (gmanager_Utils.isAccountToolbar(toolbarPanel))
         toolbarPanel.displayAccount = account;
       
-      if (toolbarPanel.getAttribute("id") == "gmanager-toolbar-panel")
-        gmanager_Prefs.setCharPref("current", account.email);
-      
       if (account.loggedIn && this._manager.global.getBoolPref("toolbar-auto-check"))
         account.check();
       else if (!account.loggedIn && this._manager.global.getBoolPref("toolbar-auto-login"))

@@ -187,9 +187,8 @@ var gmanager_Overlay = new function()
   {
     var accounts = this._manager.getAccounts({});
     var isAutoLogin = this._manager.global.getBoolPref("general-auto-login");
-    var theToolbarPanel = document.getElementById("gmanager-toolbar-panel");
     var activeToolbarPanels = 0;
-    
+
     for (var i = 0; i < accounts.length; i++)
     {
       var account = accounts[i];
@@ -199,14 +198,17 @@ var gmanager_Overlay = new function()
       if (toolbarPanel)
       {
         toolbarPanel.updateDisplay();
-        toolbarPanel.updatePosition();
       }
       else
       {
-        toolbarPanel = theToolbarPanel.cloneNode(true);
+        toolbarPanel = document.createElement("toolbaritem");
+        toolbarPanel.classList.add("gmanager-account-info");
+        // stick it into the DOM so XBL binding happens :(
+        document.documentElement.appendChild(toolbarPanel);
         toolbarPanel.account = account;
         toolbarPanel.displayAccount = account;
       }
+      toolbarPanel.updatePosition();
       
       if (!toolbarPanel.hidden)
         activeToolbarPanels++;
@@ -220,17 +222,6 @@ var gmanager_Overlay = new function()
       }
     }
     
-    if (gmanager_Prefs.hasPref("current"))
-    {
-      var current = gmanager_Prefs.getCharPref("current");
-      
-      if (this._manager.isAccount(current))
-        theToolbarPanel.displayAccount = this._manager.getAccount(current);
-    }
-    
-    // Display the main toolbar panel if no account toolbar panels are displayed
-    theToolbarPanel.hidden = (activeToolbarPanels > 0);
-    
     var toolbarPanels = gmanager_Utils.getAccountToolbars();
     
     for (var i = 0; i < toolbarPanels.length; i++)
@@ -242,7 +233,7 @@ var gmanager_Overlay = new function()
         var email = toolbarPanel.account.email;
         
         if (!this._manager.isAccount(email))
-          toolbarPanel.destroy();
+          toolbarPanel.parentNode.removeChild(toolbarPanel);
       }
     }
   }
@@ -278,6 +269,11 @@ var gmanager_Overlay = new function()
       // aSubject : null
       // aTopic   : gmanager_Accounts.NOTIFY_STATE
       // aData    : email|status (e.g. longfocus@gmail.com|10)
+      
+      var event = document.createEvent("DataContainerEvent");
+      event.initEvent(gmanager_Accounts.NOTIFY_STATE, true, false);
+      event.setData("data", aData);
+      document.documentElement.dispatchEvent(event);
       
       var email = (aData ? aData.split("|")[0] : null);
       var status = parseInt(aData ? aData.split("|")[1] : null);
