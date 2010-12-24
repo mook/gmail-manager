@@ -14,7 +14,6 @@
 	<binding id="gmanager-account-info">
 		<content context="_child"
 				 tooltip="gmanager-toolbar-tooltip"
-				 hidden="true"
 				 icontype="gmail"
 				 status="logged-out"
 				 onclick="gmanager_ToolbarClick.click(event);">
@@ -57,7 +56,6 @@
 				    this._account = val;
 				    this.setAttribute("id",
 									  "gmanager-toolbar-panel-" + val.email);
-				    this.updatePosition();
 				  ]]>
 				</setter>
 			</property>
@@ -93,47 +91,36 @@
 			<method name="updatePosition">
 				<body>
 				  <![CDATA[
-				    if (this._account)
+				    if (!this._account)
 				    {
-					  var toolbox = document.getElementById("navigator-toolbox");
-					  toolbox.palette.appendChild(this);
-				      var isToolbarDisplay = this._account.getBoolPref("toolbar-display");
-				      
-				      if (isToolbarDisplay)
-				      {
-						var toolbarid = this._account.getCharPref("toolbar-toolbar-id");
-						if (toolbarid == "status-bar")
-						{
-							// transition to addon-bar for firefox 4
-							toolbarid = "addon-bar";
-						}
-				        var toolbar = document.getElementById(toolbarid);
-				        var toolbarPosition = this._account.getIntPref("toolbar-specific-position");
-				        
-				        if (toolbar === null)
-				          toolbar = document.getElementById("addon-bar");
-						
-				        
-						var placement = this._account.getCharPref("toolbar-placement");
-						if (placement == "always-last")
-						{
-							// always-last - insert at the end
-							toolbar.insertItem(this.id, null, false);
-						}
-						else if (/^\d+$/.test(placement))
-						{
-							// insert based on numerical index...
-							toolbar.insertItem(this.id, toolbar.childNodes[toolbarPosition]);
-						}
-						else
-						{
-							// insert based on id of element
-							Components.utils.reportError("not yet handling toolbar [" + placement + "]")
-						}
-				      }
-				      
-				      this.setAttribute("hidden", !isToolbarDisplay);
-				    }
+					  return;
+					}
+
+					// stick this into the palette first; otherwise
+					// toolbar.insertItem will get all confused
+					var toolbox = document.getElementById("navigator-toolbox");
+					toolbox.palette.appendChild(this);
+
+					// look for a toolbar this should be in (including both
+					// stuff in the main toolbox and the addon bar)
+					let toolbars = toolbox.externalToolbars.concat(Array.slice(toolbox.children));
+					for each (let toolbar in toolbars)
+					{
+					  let savedset = toolbar.getAttribute("currentset").split(",");
+					  let index = savedset.indexOf(this.id);
+					  if (index < 0)
+					  {
+						continue;
+					  }
+					  // insertItem takes a insertBefore (which may be null)
+					  let next = null;
+					  if (index < savedset.length - 1)
+					  {
+						next = document.getElementById(savedset[index + 1]);
+					  }
+					  toolbar.insertItem(this.id, next, false);
+					  return;
+					}
 				  ]]>
 				</body>
 			</method>
