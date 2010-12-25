@@ -112,9 +112,9 @@
 					  }
 					  // insertItem takes a insertBefore (which may be null)
 					  let next = null;
-					  if (index < savedset.length - 1)
+					  for (++index; !next && index < savedset.length; ++index)
 					  {
-						next = document.getElementById(savedset[index + 1]);
+						next = document.getElementById(savedset[index]);
 					  }
 					  toolbar.insertItem(this.id, next, false);
 					  return;
