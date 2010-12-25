@@ -41,12 +41,6 @@
 				        .addEventListener(gmanager_Accounts.NOTIFY_STATE,
 										  function(e) self._onNotifyState(e),
 										  false);
-				
-				var tooltip = document.getAnonymousElementByAttribute(this, "anonid", "tooltip");
-				if (tooltip) {
-					this.removeChild(tooltip);
-					this.appendChild(tooltip);
-				}
 			</constructor>
 			<property name="account"
 					onget="return this._account;">
