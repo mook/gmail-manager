@@ -41,6 +41,10 @@
 				        .addEventListener(gmanager_Accounts.NOTIFY_STATE,
 										  function(e) self._onNotifyState(e),
 										  false);
+				if (this.displayAccount)
+				{
+					this.updateDisplay();
+				}
 			</constructor>
 			<property name="account"
 					onget="return this._account;">
