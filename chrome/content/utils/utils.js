@@ -91,47 +91,18 @@ var gmanager_Utils = new function()
   {
     var password = null;
 
-    // Check for Toolkit 1.9 (Firefox 3)
-    if ("@mozilla.org/login-manager;1" in Components.classes)
+    // Load the login manager service
+    var loginManager = Components.classes["@mozilla.org/login-manager;1"]
+                                 .getService(Components.interfaces.nsILoginManager);
+
+    // Get all logins that match the site
+    var logins = loginManager.findLogins({}, aSite, "/", null);
+
+    // Search for the matching login info
+    for (var i = 0; i < logins.length && password === null; i++)
     {
-      // Load the login manager service
-      var loginManager = Components.classes["@mozilla.org/login-manager;1"]
-                                   .getService(Components.interfaces.nsILoginManager);
-
-      // Get all logins that match the site
-      var logins = loginManager.findLogins({}, aSite, "/", null);
-
-      // Search for the matching login info
-      for (var i = 0; i < logins.length && password === null; i++)
-      {
-        if (logins[i].username == aUsername)
-          password = logins[i].password;
-      }
-    }
-    else
-    {
-      // Load the password manager service
-      var passwordManager = Components.classes["@mozilla.org/passwordmanager;1"]
-                                      .getService(Components.interfaces.nsIPasswordManagerInternal);
-
-      // Initialize the parameters to lookup
-      var hostURIFound = { value: "" };
-      var usernameFound = { value: "" };
-      var passwordFound = { value: "" };
-
-      try {
-        // Lookup the password for this email
-        passwordManager.findPasswordEntry(aSite,
-                                          aUsername,
-                                          null,
-                                          hostURIFound,
-                                          usernameFound,
-                                          passwordFound);
-      } catch(e) {}
-
-      // Check if the password was found
-      if (passwordFound)
-        password = passwordFound.value;
+      if (logins[i].username == aUsername)
+        password = logins[i].password;
     }
 
     return password;
@@ -141,47 +112,27 @@ var gmanager_Utils = new function()
   {
     var passwords = new Array();
 
-    // Check for Toolkit 1.9 (Firefox 3)
-    if ("@mozilla.org/login-manager;1" in Components.classes)
+    // Get the login manager
+    var loginManager = Components.classes["@mozilla.org/login-manager;1"]
+                                 .getService(Components.interfaces.nsILoginManager);
+
+    // Get all logins that match the hostname
+    var loginInfos = loginManager.findLogins({},
+                                             "https://www.google.com",
+                                             "https://www.google.com",
+                                             null);
+
+    for (var i = 0; i < loginInfos.length; i++)
     {
-      // Get the login manager
-      var loginManager = Components.classes["@mozilla.org/login-manager;1"]
-                                   .getService(Components.interfaces.nsILoginManager);
+      var password = new Object();
 
-      // Get all logins that match the hostname
-      var loginInfos = loginManager.findLogins({},
-                                               "https://www.google.com",
-                                               "https://www.google.com",
-                                               null);
+      password.user = loginInfos[i].username;
+      password.password = loginInfos[i].password;
 
-      for (var i = 0; i < loginInfos.length; i++)
-      {
-        var password = new Object();
+      if (password.user.indexOf("@") == -1)
+        password.user += "@gmail.com";
 
-        password.user = loginInfos[i].username;
-        password.password = loginInfos[i].password;
-
-        if (password.user.indexOf("@") == -1)
-          password.user += "@gmail.com";
-
-        passwords.push(password);
-      }
-    }
-    else
-    {
-      // Get the password manager enumerator
-      var passwordManager = Components.classes["@mozilla.org/passwordmanager;1"]
-                                      .getService(Components.interfaces.nsIPasswordManager);
-      var passwordEnumerator = passwordManager.enumerator;
-
-      while (passwordEnumerator.hasMoreElements())
-      {
-        var password = passwordEnumerator.getNext()
-                                         .QueryInterface(Components.interfaces.nsIPassword);
-
-        if (password.host == "https://www.google.com")
-          passwords.push(password);
-      }
+      passwords.push(password);
     }
 
     return passwords;

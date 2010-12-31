@@ -31,12 +31,12 @@ gmAccount.prototype = {
   _alias: null,
   _password: null,
   _service: null,
-  
+
   _log: function(aMsg)
   {
     this._logger.log("(" + this.email + ") " + aMsg);
   },
-  
+
   get node() { return this._node; },
   get type() { return this._type; },
   get email() { return this._email; },
@@ -44,65 +44,40 @@ gmAccount.prototype = {
   get password()
   {
     var password = null;
-    
-    // Check for Toolkit 1.9 (Firefox 3)
-    if ("@mozilla.org/login-manager;1" in Components.classes)
-    {
-      // Lookup the login info
-      var loginInfo = this._getLoginInfo();
-      
-      // Check if the login info exists
-      if (loginInfo !== null)
-        password = loginInfo.password;
-    }
-    else
-    {
-      // Load the password manager service
-      var passwordManager = Components.classes["@mozilla.org/passwordmanager;1"].getService(Components.interfaces.nsIPasswordManagerInternal);
-      
-      // Initialize the parameters to lookup
-      var hostURIFound = { value: "" };
-      var usernameFound = { value: "" };
-      var passwordFound = { value: "" };
-      
-      try {
-        // Lookup the password for this email
-        passwordManager.findPasswordEntry(PASSWORD_SITE, this._email, null, hostURIFound, usernameFound, passwordFound);
-      } catch(e) {
-        this._log("Error getting the password: " + e);
-      }
-      
-      // Check if the password was found
-      if (passwordFound !== null)
-        password = passwordFound.value;
-    }
-    
+
+    // Lookup the login info
+    var loginInfo = this._getLoginInfo();
+
+    // Check if the login info exists
+    if (loginInfo !== null)
+      password = loginInfo.password;
+
     // Return the password
     return password;
   },
-  
+
   get newMail() { return this.unread > this._lastUnread; },
   get unread()
   {
     var unread = 0;
-    
+
     if (this.getBoolPref("toolbar-unread-count-inbox"))
       unread += this.inboxUnread;
-    
+
     if (this.getBoolPref("toolbar-unread-count-spam"))
       unread += this.spamUnread;
-    
+
     if (this.getBoolPref("toolbar-unread-count-labels"))
     {
       var labels = this.getLabels({});
-      
+
       for (var i = 0; i < labels.length; i++)
         unread += labels[i].unread;
     }
-    
+
     return unread;
   },
-  
+
   get status() { return (this._service !== null ? this._service.status : null); },
   get loggedIn() { return (this._service !== null ? this._service.loggedIn : false); },
   get checking() { return (this._service !== null ? this._service.checking : false); },
@@ -112,7 +87,7 @@ gmAccount.prototype = {
   get spaceUsed() { return (this._service !== null ? this._service.spaceUsed : null); },
   get percentUsed() { return (this._service !== null ? this._service.percentUsed : null); },
   get totalSpace() { return (this._service !== null ? this._service.totalSpace : null); },
-  
+
   getBoolPref: function(aId)
   {
     return this.getCharPref(aId) == "true" ? true : false;
@@ -121,7 +96,7 @@ gmAccount.prototype = {
   {
     this.setCharPref(aId, aValue ? "true" : "false");
   },
-  
+
   getCharPref: function(aId)
   {
     if (aId in this._prefs)
@@ -138,7 +113,7 @@ gmAccount.prototype = {
     if (aId in this._prefs)
       this._prefs[aId].setAttribute("value", aValue);
   },
-  
+
   getIntPref: function(aId)
   {
     return parseInt(this.getCharPref(aId));
@@ -147,17 +122,17 @@ gmAccount.prototype = {
   {
     this.setCharPref(aId, aValue ? aValue.toString() : "");
   },
-  
+
   load: function(aNode)
   {
     this._node = aNode;
     this._prefs = new Array();
-    
+
     if (this._type === null)
     {
       // Set the account type
       this._type = this._node.getAttribute("type");
-      
+
       // Check the account type
       if (this._type === GLOBAL_TYPE)
       {
@@ -168,13 +143,14 @@ gmAccount.prototype = {
       {
         // Set the account email
         this._email = this._node.getAttribute("email");
-        
+
         // Load the mail service
         switch (this._type)
         {
           case ACCOUNT_TYPE_GMAIL:
             // Create the Gmail mail service
-            this._service = Components.classes["@longfocus.com/gmanager/service/gmail;1"].createInstance(Components.interfaces.gmIServiceGmail);
+            this._service = Cc["@longfocus.com/gmanager/service/gmail;1"]
+                              .createInstance(Ci.gmIServiceGmail);
             break;
           case ACCOUNT_TYPE_YAHOO:
             // Create the Yahoo mail service
@@ -183,111 +159,95 @@ gmAccount.prototype = {
           default:
             break;
         }
-        
+
         // Initialize the mail service
         this.init(this._email);
       }
     }
-    
+
     // Set the account alias
     this._alias = this._node.getAttribute("alias");
-    
+
     // Check if the password attribute is specified
     if (this._node.hasAttribute("password"))
     {
       // Save the account password
       this.savePassword(this._node.getAttribute("password"));
     }
-    
+
     var prefs = this._node.getElementsByTagName("pref");
-    
+
     for (var i = 0; i < prefs.length; i++)
     {
       var pref = prefs.item(i);
       this._prefs[pref.getAttribute("id")] = pref;
     }
   },
-  
+
   savePassword: function(aPassword)
   {
     // Save the password
     this._updatePassword(aPassword);
   },
-  
+
   removePassword: function()
   {
     // Remove the password (if available)
     this._updatePassword(null);
   },
-  
+
   _updatePassword: function(aPassword)
   {
     var isPassword = (aPassword != null && aPassword.length > 0);
-    
-    // Check for Toolkit 1.9 (Firefox 3)
-    if ("@mozilla.org/login-manager;1" in Components.classes)
+
+    // Load the login manager service
+    var loginManager = Cc["@mozilla.org/login-manager;1"]
+                         .getService(Ci.nsILoginManager);
+
+    // Get the available login info
+    var loginInfo = this._getLoginInfo();
+
+    // Check if the password is specified
+    if (isPassword)
     {
-      // Load the login manager service
-      var loginManager = Components.classes["@mozilla.org/login-manager;1"].getService(Components.interfaces.nsILoginManager);
-      
-      // Get the available login info
-      var loginInfo = this._getLoginInfo();
-      
-      // Check if the password is specified
-      if (isPassword)
-      {
-        // Create the updated login info
-        var nsLoginInfo = new Components.Constructor("@mozilla.org/login-manager/loginInfo;1", Components.interfaces.nsILoginInfo, "init");
-        var newLoginInfo = new nsLoginInfo(PASSWORD_SITE, "/", null, this._email, aPassword, "", "");
-        
-        // Check if the login info exists
-        if (loginInfo === null)
-          loginManager.addLogin(newLoginInfo);
-        else
-          loginManager.modifyLogin(loginInfo, newLoginInfo);
-      }
+      // Create the updated login info
+      var newLoginInfo = Cc["@mozilla.org/login-manager/loginInfo;1"]
+                           .createInstance(Ci.nsILoginInfo);
+      newLoginInfo.init(PASSWORD_SITE, "/", null, this._email, aPassword, "", "");
+
+      // Check if the login info exists
+      if (loginInfo === null)
+        loginManager.addLogin(newLoginInfo);
       else
-      {
-        // Check if the login info exists
-        if (loginInfo !== null)
-          loginManager.removeLogin(loginInfo);
-      }
+        loginManager.modifyLogin(loginInfo, newLoginInfo);
     }
     else
     {
-      // Load the password manager service
-      var passwordManager = Components.classes["@mozilla.org/passwordmanager;1"].getService(Components.interfaces.nsIPasswordManager);
-      
-      try {
-        // Check if the password is specified
-        if (isPassword)
-          passwordManager.addUser(PASSWORD_SITE, this._email, aPassword);
-        else
-          passwordManager.removeUser(PASSWORD_SITE, this._email);
-      } catch(e) {
-        this._log("Error updating the password: " + e);
-      }
+      // Check if the login info exists
+      if (loginInfo !== null)
+        loginManager.removeLogin(loginInfo);
     }
   },
-  
+
   _getLoginInfo: function()
   {
     // Load the login manager service
-    var loginManager = Components.classes["@mozilla.org/login-manager;1"].getService(Components.interfaces.nsILoginManager);
-    
+    var loginManager = Cc["@mozilla.org/login-manager;1"]
+                         .getService(Ci.nsILoginManager);
+
     // Get all logins that match the site
     var logins = loginManager.findLogins({}, PASSWORD_SITE, "/", null);
-    
+
     // Search for the matching login info
     for (var i = 0; i < logins.length; i++)
     {
       if (logins[i].username === this._email)
         return logins[i];
     }
-    
+
     return null;
   },
-  
+
   /**
    * gmIService
    */
@@ -307,7 +267,7 @@ gmAccount.prototype = {
       this._service.getInboxAsync(aCallback, aPassword);
     }
   },
-  
+
   getComposeAsync: function gmAccount_getComposeAsync(aCallback,
                                                       /*optional*/ aPassword,
                                                       /*optional*/ aHref)
@@ -320,26 +280,26 @@ gmAccount.prototype = {
       this._service.getComposeAsync(aCallback, aPassword, aHref);
     }
   },
-  
+
   login: function gmAccount_login(/* Optional */ aPassword)
   {
     if (this._service !== null)
     {
       if (aPassword == null)
         aPassword = this.password;
-      
+
       this._lastUnread = 0;
       this._service.login(aPassword);
       this._startTimer();
     }
   },
-  
+
   logout: function()
   {
     if (this._service !== null)
       this._service.logout();
   },
-  
+
   check: function()
   {
     if (this._service !== null)
@@ -349,7 +309,7 @@ gmAccount.prototype = {
       this._startTimer();
     }
   },
-  
+
   resetUnread: function()
   {
     if (this._service !== null)
@@ -358,7 +318,7 @@ gmAccount.prototype = {
       this._startTimer();
     }
   },
-  
+
   getLabels: function(aCount)
   {
     var labels = (this._service !== null ? this._service.getLabels({}) : []);
@@ -368,7 +328,7 @@ gmAccount.prototype = {
     }
     return labels;
   },
-  
+
   getSnippets: function(aCount)
   {
     var snippets = (this._service !== null ? this._service.getSnippets({}) : []);
@@ -378,31 +338,31 @@ gmAccount.prototype = {
     }
     return snippets;
   },
-  
+
   _startTimer: function()
   {
     // Stop the check timer
     this._timer.cancel();
-    
+
     if (this.getBoolPref("notifications-check"))
     {
       var interval = (this.getIntPref("notifications-check-interval") * 60000);
-      
+
       // Check if the interval is valid
       if (!isNaN(interval) && interval > 0)
       {
         // Start the check timer, fire only once
-        this._timer.initWithCallback(this, interval, Components.interfaces.nsITimer.TYPE_ONE_SHOT);
+        this._timer.initWithCallback(this, interval, Ci.nsITimer.TYPE_ONE_SHOT);
       }
     }
   },
-  
+
   notify: function(aTimer)
   {
     if (this.loggedIn)
       this.check();
   },
-  
+
   QueryInterface: XPCOMUtils.generateQI([Ci.gmIAccount,
                                          Ci.gmIService,
                                          Ci.nsITimerCallback]),
