@@ -15,7 +15,7 @@ var gmanager_Accounts = new function()
 
   this.loginAllAccounts = function()
   {
-    var accounts = this._manager.getAccounts({});
+    var accounts = this._manager.getAccounts();
 
     if (accounts)
     {
@@ -30,7 +30,7 @@ var gmanager_Accounts = new function()
 
   this.logoutAllAccounts = function()
   {
-    var accounts = this._manager.getAccounts({});
+    var accounts = this._manager.getAccounts();
 
     if (accounts)
     {
@@ -45,7 +45,7 @@ var gmanager_Accounts = new function()
 
   this.checkAllAccounts = function()
   {
-    var accounts = this._manager.getAccounts({});
+    var accounts = this._manager.getAccounts();
 
     if (accounts)
     {

@@ -182,9 +182,9 @@ var gmanager_Overlay = new function()
 
   this._loadAccounts = function gmanager_Overlay__loadAccounts(aInit)
   {
-    var accounts = this._manager.getAccounts({});
+    var accounts = this._manager.getAccounts();
     var isAutoLogin = this._manager.global.getBoolPref("general-auto-login");
-    var activeToolbarPanels = 0;
+    var existingToolbarItems = Array.slice(document.querySelectorAll(".gmanager-account-info"));
 
     for (var i = 0; i < accounts.length; i++)
     {
@@ -195,6 +195,7 @@ var gmanager_Overlay = new function()
       if (toolbarPanel)
       {
         toolbarPanel.updateDisplay();
+        existingToolbarItems.splice(existingToolbarItems.indexOf(toolbarPanel), 1);
       }
       else
       {
@@ -207,9 +208,6 @@ var gmanager_Overlay = new function()
       }
       toolbarPanel.updatePosition();
 
-      if (!toolbarPanel.hidden)
-        activeToolbarPanels++;
-
       // Check if the account should automatically login
       if (aInit &&
           !account.loggedIn &&
@@ -219,20 +217,25 @@ var gmanager_Overlay = new function()
       }
     }
 
-    var toolbarPanels = gmanager_Utils.getAccountToolbars();
+    // remove toolbar items that are for deleted accounts.  this may happen
+    // if this is from changing options (i.e. aInit is false)
+    var palette = document.getElementById("navigator-toolbox").palette;
+    Array.slice(palette.childNodes).forEach(function(aElement) {
+      if (gmanager_Utils.isAccountToolbar(aElement))
+        existingToolbarItems.push(aElement);
+    });
 
-    for (var i = 0; i < toolbarPanels.length; i++)
-    {
-      var toolbarPanel = toolbarPanels[i];
-
-      if (toolbarPanel.account)
+    existingToolbarItems.forEach(function(aToolbarItem) {
+      if (!gmanager_Utils.isAccountToolbar(aToolbarItem))
+        return;
+      if (aToolbarItem.account)
       {
-        var email = toolbarPanel.account.email;
+        var email = aToolbarItem.account.email;
 
         if (!this._manager.isAccount(email))
-          toolbarPanel.parentNode.removeChild(toolbarPanel);
+          aToolbarItem.parentNode.removeChild(aToolbarItem);
       }
-    }
+    }, this);
   }
 
   this._toggleToolsMenu = function()

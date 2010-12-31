@@ -22,7 +22,7 @@ interface gmIManager : nsISupports {
   boolean importPrefs(in nsIFile aFile);
   boolean exportPrefs(in nsIFile aFile);
   boolean isAccount(in ACString aEmail);
-  void getAccounts(out PRUint32 aCount,
+  void getAccounts([optional] out PRUint32 aCount,
                    [retval, array, size_is(aCount)] out gmIAccount aAccounts);
   gmIAccount getAccount(in ACString aEmail);
   gmIAccount addAccount(in ACString aType,

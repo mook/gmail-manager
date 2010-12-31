@@ -51,40 +51,9 @@ var gmanager_Utils = new function()
     return null;
   }
 
-  this.getToolbars = function()
-  {
-    var allToolbars = new Array();
-    var toolbarNames = new Array("statusbar", "toolbar");
-
-    for (var i = 0; i < toolbarNames.length; i++)
-    {
-      var toolbars = this.getBrowser().ownerDocument.getElementsByTagName(toolbarNames[i]);
-      for (var k = 0; k < toolbars.length; k++)
-        allToolbars.push(toolbars[k]);
-    }
-
-    return allToolbars;
-  }
-
-  this.getAccountToolbars = function()
-  {
-    var accountToolbars = new Array();
-    var statusbarpanels = this.getBrowser().ownerDocument.getElementsByTagName("statusbarpanel");
-
-    for (var i = 0; i < statusbarpanels.length; i++)
-    {
-      var statusbarpanel = statusbarpanels.item(i);
-
-      if (this.isAccountToolbar(statusbarpanel))
-        accountToolbars.push(statusbarpanel);
-    }
-
-    return accountToolbars;
-  }
-
   this.isAccountToolbar = function(aNode)
   {
-    return aNode && /^gmanager-toolbar-panel/.test(aNode.getAttribute("id"));
+    return aNode && /^gmanager-toolbar-panel-/.test(aNode.getAttribute("id"));
   }
 
   this.getStoredPassword = function(aSite, aUsername)

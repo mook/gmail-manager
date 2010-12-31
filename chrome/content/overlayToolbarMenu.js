@@ -23,7 +23,7 @@ var gmanager_ToolbarMenu = new function()
 
   this.buildMenu = function(aPopup)
   {
-    var accounts = this._manager.getAccounts({});
+    var accounts = this._manager.getAccounts();
     var menuitem = null;
 
     // Clear the menu
@@ -213,7 +213,7 @@ var gmanager_ToolbarMenu = new function()
 
   this.buildComposeMenu = function(aPopup)
   {
-    var accounts = this._manager.getAccounts({});
+    var accounts = this._manager.getAccounts();
     var menuitem = null;
 
     // Clear the menu
