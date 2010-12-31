@@ -71,9 +71,9 @@ interface gmIService : nsISupports {
   void logout();
   void check();
   void resetUnread();
-  void getLabels(out PRUint32 aCount,
+  void getLabels([optional] out PRUint32 aCount,
                  [array, size_is(aCount), retval] out gmIServiceLabel aLabels);
-  void getSnippets(out PRUint32 aCount,
+  void getSnippets([optional] out PRUint32 aCount,
                    [array, size_is(aCount), retval] out gmIServiceSnippet aSnippets);
 
   const PRUint16 STATE_CONNECTING = 10;

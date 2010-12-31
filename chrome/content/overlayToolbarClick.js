@@ -14,7 +14,8 @@ var gmanager_ToolbarClick = new function()
       
       if (account != null)
       {
-        var manager = Components.classes["@longfocus.com/gmanager/manager;1"].getService(Components.interfaces.gmIManager);
+        var manager = Components.classes["@longfocus.com/gmanager/manager;1"]
+                                .getService(Components.interfaces.gmIManager);
         var action = null;
         
         switch (aEvent.button)
@@ -64,7 +65,9 @@ var gmanager_ToolbarClick = new function()
         }
       }
       else
-        window.openDialog("chrome://gmanager/content/login/login.xul", "login", "centerscreen,chrome,modal");
+        window.openDialog("chrome://gmanager/content/login/login.xul",
+                          "login",
+                          "centerscreen,chrome,modal");
     }
     
     return true;

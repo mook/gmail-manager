@@ -5,17 +5,18 @@
 var gmanager_Accounts = new function()
 {
   this.NOTIFY_STATE = "gmanager-accounts-notify-state";
-  
+
   this.init = function()
   {
     // Load the accounts manager
-    this._manager = Components.classes["@longfocus.com/gmanager/manager;1"].getService(Components.interfaces.gmIManager);
+    this._manager = Components.classes["@longfocus.com/gmanager/manager;1"]
+                              .getService(Components.interfaces.gmIManager);
   }
-  
+
   this.loginAllAccounts = function()
   {
     var accounts = this._manager.getAccounts({});
-    
+
     if (accounts)
     {
       for (var i = 0; i < accounts.length; i++)
@@ -26,11 +27,11 @@ var gmanager_Accounts = new function()
       }
     }
   }
-  
+
   this.logoutAllAccounts = function()
   {
     var accounts = this._manager.getAccounts({});
-    
+
     if (accounts)
     {
       for (var i = 0; i < accounts.length; i++)
@@ -41,11 +42,11 @@ var gmanager_Accounts = new function()
       }
     }
   }
-  
+
   this.checkAllAccounts = function()
   {
     var accounts = this._manager.getAccounts({});
-    
+
     if (accounts)
     {
       for (var i = 0; i < accounts.length; i++)
@@ -56,35 +57,35 @@ var gmanager_Accounts = new function()
       }
     }
   }
-  
+
   this.loginAccount = function(aEmail)
   {
     var account = this._manager.getAccount(aEmail);
-    
+
     if (account && !account.loggedIn)
       account.login(null);
   }
-  
+
   this.logoutAccount = function(aEmail)
   {
     var account = this._manager.getAccount(aEmail);
-    
+
     if (account && account.loggedIn)
       account.logout();
   }
-  
+
   this.checkAccount = function(aEmail)
   {
     var account = this._manager.getAccount(aEmail);
-    
+
     if (account && account.loggedIn)
       account.check();
   }
-  
+
   this.loadInbox = function(aEmail, aLocation)
   {
     var account = this._manager.getAccount(aEmail);
-    
+
     if (account)
     {
       account.getInboxAsync(function(aURL, aData) {
@@ -92,11 +93,11 @@ var gmanager_Accounts = new function()
       });
     }
   }
-  
+
   this.loadCompose = function(aEmail, aLocation, aHref)
   {
     var account = this._manager.getAccount(aEmail);
-    
+
     if (account)
     {
       account.getComposeAsync(function(aURL, aData) {
@@ -106,6 +107,6 @@ var gmanager_Accounts = new function()
     else
       gmanager_Utils.loadDefaultMail(aHref);
   }
-  
+
   this.init();
 }

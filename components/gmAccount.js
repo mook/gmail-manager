@@ -362,14 +362,20 @@ gmAccount.prototype = {
   getLabels: function(aCount)
   {
     var labels = (this._service !== null ? this._service.getLabels({}) : []);
-    aCount.value = labels.length;
+    if (aCount)
+    {
+      aCount.value = labels.length;
+    }
     return labels;
   },
   
   getSnippets: function(aCount)
   {
     var snippets = (this._service !== null ? this._service.getSnippets({}) : []);
-    aCount.value = snippets.length;
+    if (aCount)
+    {
+      aCount.value = snippets.length;
+    }
     return snippets;
   },
   

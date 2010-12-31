@@ -4,163 +4,176 @@
   Gmail Manager
   By Todd Long <longfocus@gmail.com>
   http://www.longfocus.com/firefox/gmanager/
-  /* vim: set noet sw=4 tab=4 : */
+  /* vim: set et sw=2 : */
  -->
 
 <bindings xmlns="http://www.mozilla.org/xbl"
-		xmlns:xbl="http://www.mozilla.org/xbl"
-		xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-		
-	<binding id="gmanager-account-info">
-		<content context="_child"
-				 tooltip="gmanager-toolbar-tooltip"
-				 icontype="gmail"
-				 status="logged-out"
-				 onclick="gmanager_ToolbarClick.click(event);">
-			<xul:hbox align="center">
-				<xul:image class="gmanager-icon"
-						xbl:inherits="iconsize,icontype,status,newMail"/>
-						
-				<xul:label class="gmanager-unread"
-						value=""
-						xbl:inherits="value=unread"/>
-						
-				<xul:label class="gmanager-alias"
-						value=""
-						xbl:inherits="value=alias"/>
-			</xul:hbox>
-			<xul:menupopup position="after_start"
-						   onclick="event.stopPropagation();"
-						   onpopupshowing="return gmanager_ToolbarMenu.buildMenu(this);"/>
-		</content>
-		
-		<implementation>
-			<constructor>
-				var self = this;
-				document.documentElement
-				        .addEventListener(gmanager_Accounts.NOTIFY_STATE,
-										  function(e) self._onNotifyState(e),
-										  false);
-				if (this.displayAccount)
-				{
-					this.updateDisplay();
-				}
-			</constructor>
-			<property name="account"
-					onget="return this._account;">
-					
-				<setter>
-				  <![CDATA[
-				    this._account = val;
-				    this.setAttribute("id",
-									  "gmanager-toolbar-panel-" + val.email);
-				  ]]>
-				</setter>
-			</property>
-			
-			<property name="displayAccount"
-					onget="return this._displayAccount;">
-					
-				<setter>
-				  <![CDATA[
-				    this._displayAccount = val;
-				    this.updateDisplay();
-				  ]]>
-				</setter>
-			</property>
-			
-			<method name="updateDisplay">
-				<body>
-				  <![CDATA[
-				    if (this._displayAccount)
-				    {
-				      var unread = this._displayAccount.unread;
-				      
-				      this.setAttribute("icontype", this._displayAccount.type);
-				      this.setAttribute("status", gmanager_Utils.toStyleStatus(this._displayAccount.status));
-				      this.setAttribute("newMail", unread > 0 ? "true" : "false");
-				      this.setAttribute("unread", !this._displayAccount.getBoolPref("toolbar-account-hide-unread-count") && this._displayAccount.loggedIn ? unread : "");
-				      this.setAttribute("alias", !this._displayAccount.getBoolPref("toolbar-account-hide-alias") ? gmanager_Utils.toUnicode(this._displayAccount.alias) : "");
-				    }
-				  ]]>
-				</body>
-			</method>
-			
-			<method name="updatePosition">
-				<body>
-				  <![CDATA[
-				    if (!this._account)
-				    {
-					  return;
-					}
+          xmlns:xbl="http://www.mozilla.org/xbl"
+          xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
-					// stick this into the palette first; otherwise
-					// toolbar.insertItem will get all confused
-					var toolbox = document.getElementById("navigator-toolbox");
-					toolbox.palette.appendChild(this);
+  <binding id="gmanager-account-info">
+    <content context="_child"
+             tooltip="gmanager-toolbar-tooltip"
+             icontype="gmail"
+             status="logged-out"
+             onclick="gmanager_ToolbarClick.click(event);">
+      <xul:hbox align="center">
+        <xul:image class="gmanager-icon"
+                   xbl:inherits="iconsize,icontype,status,newMail"/>
 
-					// look for a toolbar this should be in (including both
-					// stuff in the main toolbox and the addon bar)
-					let toolbars = toolbox.externalToolbars.concat(Array.slice(toolbox.children));
-					for each (let toolbar in toolbars)
-					{
-					  let savedset = toolbar.getAttribute("currentset").split(",");
-					  let index = savedset.indexOf(this.id);
-					  if (index < 0)
-					  {
-						continue;
-					  }
-					  // insertItem takes a insertBefore (which may be null)
-					  let next = null;
-					  for (++index; !next && index < savedset.length; ++index)
-					  {
-						next = document.getElementById(savedset[index]);
-					  }
-					  toolbar.insertItem(this.id, next, false);
-					  return;
-					}
-				  ]]>
-				</body>
-			</method>
-			<method name="_onNotifyState">
-				<parameter name="event"/>
-				<body>
-				<![CDATA[
-					// This is a forwarded gmanager_Accounts.NOTIFY_STATE observer
-					// notification, with data:
-					//    email|status (e.g. longfocus@gmail.com|10)
-					var email = event.getData("data").split("|")[0];
-	
-					if (this._displayAccount && this._displayAccount.email == email)
-					  this.updateDisplay();
-				]]>
-				</body>
-			</method>
-		</implementation>
-	</binding>
-	
-	<binding id="gmanager-toolbar-menuitem"
-			extends="chrome://global/content/bindings/menu.xml#menuitem">
-			
-		<content type="radio">
-			<xul:hbox class="menu-iconic-left"
-					align="center"
-					pack="center"
-					xbl:inherits="selected,checked">
-					
-				<xul:image class="menu-iconic-icon"
-						xbl:inherits="src=image"/>
-			</xul:hbox>
-			
-			<xul:label class="menu-iconic-text"
-					flex="1"
-					xbl:inherits="value=alias"/>
-					
-			<xul:label xbl:inherits="value=unread"/>
-			
-			<xul:image class="gmanager-icon"
-					iconsize="small"
-					xbl:inherits="icontype,status,newMail"/>
-		</content>
-	</binding>
+        <xul:label class="gmanager-unread"
+                   xbl:inherits="value=unread"/>
+
+        <xul:label class="gmanager-alias"
+                   xbl:inherits="value=alias"/>
+      </xul:hbox>
+      <xul:menupopup position="after_start"
+                     onclick="event.stopPropagation();"
+                     onpopupshowing="return gmanager_ToolbarMenu.buildMenu(this);"/>
+    </content>
+
+    <implementation>
+      <constructor>
+        var self = this;
+        document.documentElement
+                .addEventListener(gmanager_Accounts.NOTIFY_STATE,
+                                  function(e) self._onNotifyState(e),
+                                  false);
+        if (this.displayAccount)
+        {
+          this.updateDisplay();
+        }
+      </constructor>
+      <property name="account"
+                onget="return this._account;">
+
+        <setter>
+          <![CDATA[
+            this._account = val;
+            this.setAttribute("id", "gmanager-toolbar-panel-" + val.email);
+          ]]>
+        </setter>
+      </property>
+
+      <property name="displayAccount"
+                onget="return this._displayAccount;">
+
+        <setter>
+          <![CDATA[
+            this._displayAccount = val;
+            this.updateDisplay();
+          ]]>
+        </setter>
+      </property>
+
+      <method name="updateDisplay">
+        <body>
+        <![CDATA[
+          var account = this._displayAccount;
+          if (account)
+          {
+            var unread = account.unread;
+
+            this.setAttribute("icontype", account.type);
+            this.setAttribute("status",
+                              gmanager_Utils.toStyleStatus(account.status));
+            this.setAttribute("newMail", unread > 0 ? "true" : "false");
+            if (account.getBoolPref("toolbar-account-hide-unread-count") ||
+                !account.loggedIn)
+            {
+              unread = "";
+            }
+            this.setAttribute("unread", unread);
+            if (account.getBoolPref("toolbar-account-hide-alias"))
+            {
+              this.removeAttribute("alias");
+            }
+            else
+            {
+              this.setAttribute("alias",
+                                gmanager_Utils.toUnicode(account.alias));
+            }
+          }
+        ]]>
+        </body>
+      </method>
+
+      <method name="updatePosition">
+        <body>
+        <![CDATA[
+          if (!this._account)
+          {
+            return;
+          }
+
+          // stick this into the palette first; otherwise
+          // toolbar.insertItem will get all confused
+          var toolbox = document.getElementById("navigator-toolbox");
+          toolbox.palette.appendChild(this);
+
+          // look for a toolbar this should be in (including both
+          // stuff in the main toolbox and the addon bar)
+          let toolbars = toolbox.externalToolbars.concat(Array.slice(toolbox.children));
+          for each (let toolbar in toolbars)
+          {
+            let savedset = toolbar.getAttribute("currentset").split(",");
+            let index = savedset.indexOf(this.id);
+            if (index < 0)
+            {
+              continue;
+            }
+            // insertItem takes a insertBefore (which may be null)
+            let next = null;
+            for (++index; !next && index < savedset.length; ++index)
+            {
+              next = document.getElementById(savedset[index]);
+            }
+            toolbar.insertItem(this.id, next, false);
+            return;
+          }
+        ]]>
+        </body>
+      </method>
+
+      <method name="_onNotifyState">
+          <parameter name="event"/>
+          <body>
+          <![CDATA[
+            // This is a forwarded gmanager_Accounts.NOTIFY_STATE observer
+            // notification, with data:
+            //    email|status (e.g. longfocus@gmail.com|10)
+            var email = event.getData("data").split("|")[0];
+
+            if (this._displayAccount && this._displayAccount.email == email)
+              this.updateDisplay();
+          ]]>
+          </body>
+      </method>
+    </implementation>
+  </binding>
+
+  <binding id="gmanager-toolbar-menuitem"
+           extends="chrome://global/content/bindings/menu.xml#menuitem">
+
+    <content type="radio">
+      <xul:hbox class="menu-iconic-left"
+                align="center"
+                pack="center"
+                xbl:inherits="selected,checked">
+
+        <xul:image class="menu-iconic-icon"
+                   xbl:inherits="src=image"/>
+      </xul:hbox>
+
+      <xul:label class="menu-iconic-text"
+                 flex="1"
+                 xbl:inherits="value=alias"/>
+
+      <xul:label xbl:inherits="value=unread"/>
+
+      <xul:image class="gmanager-icon"
+              iconsize="small"
+              xbl:inherits="icontype,status,newMail"/>
+    </content>
+  </binding>
 </bindings>

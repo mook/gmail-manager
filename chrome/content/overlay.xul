@@ -6,61 +6,60 @@
   Gmail Manager
   By Todd Long <longfocus@gmail.com>
   http://www.longfocus.com/firefox/gmanager/
-  /* vim: set noet sw=4 tab=4 : */
+  /* vim: set et sw=2 : */
  -->
 
 <!DOCTYPE overlay SYSTEM "chrome://gmanager/locale/gmanager.dtd">
 
 <overlay id="gmanager-overlay"
-		xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
-	<!-- Utilities -->
-	<script type="application/x-javascript" src="chrome://gmanager/content/utils/accounts.js"/>
-	<script type="application/x-javascript" src="chrome://gmanager/content/utils/alerts.js"/>
-	<script type="application/x-javascript" src="chrome://gmanager/content/utils/bundle.js"/>
-	<script type="application/x-javascript" src="chrome://gmanager/content/utils/prefs.js"/>
-	<script type="application/x-javascript" src="chrome://gmanager/content/utils/sounds.js"/>
-	<script type="application/x-javascript" src="chrome://gmanager/content/utils/utils.js"/>
-	
-	<!-- Overlay -->
-	<script type="application/x-javascript" src="chrome://gmanager/content/overlay.js"/>
-	<script type="application/x-javascript" src="chrome://gmanager/content/overlayToolbarClick.js"/>
-	<script type="application/x-javascript" src="chrome://gmanager/content/overlayToolbarMenu.js"/>
-	<script type="application/x-javascript" src="chrome://gmanager/content/overlayToolbarTooltip.js"/>
-	<script type="application/x-javascript">
-	  <![CDATA[
-		window.addEventListener("load", gmanager_OverlayLoad, false);
-		window.addEventListener("unload", gmanager_OverlayUnload, false);
-	  ]]>
-	</script>
-	
-	<!-- Tools Menu -->
-	<menupopup id="menu_ToolsPopup">
-		<menu id="gmanager-tools-menu"
-			class="menuitem-iconic"
-			insertafter="devToolsSeparator"
-			label="&ext-name;">
-			
-			<menupopup onpopupshowing="return gmanager_ToolbarMenu.buildMenu(this);"/>
-		</menu>
-	</menupopup>
-	
-	<!-- Context Menu -->
-	<popup id="contentAreaContextMenu">
-		<menuseparator id="gmanager-context-menu-separator"/>
-		
-		<menu id="gmanager-context-menu"
-			label="&ext-name;">
-			
-			<menupopup onpopupshowing="return gmanager_ToolbarMenu.buildMenu(this);"/>
-		</menu>
-	</popup>
+  <!-- Utilities -->
+  <script type="application/x-javascript" src="chrome://gmanager/content/utils/accounts.js"/>
+  <script type="application/x-javascript" src="chrome://gmanager/content/utils/alerts.js"/>
+  <script type="application/x-javascript" src="chrome://gmanager/content/utils/bundle.js"/>
+  <script type="application/x-javascript" src="chrome://gmanager/content/utils/prefs.js"/>
+  <script type="application/x-javascript" src="chrome://gmanager/content/utils/sounds.js"/>
+  <script type="application/x-javascript" src="chrome://gmanager/content/utils/utils.js"/>
 
-	<popupset id="mainPopupSet">
-		<tooltip id="gmanager-toolbar-tooltip"
-				 noautohide="true"
-				 orient="vertical"
-				 position="after_start"
-				 onpopupshowing="return gmanager_ToolbarTooltip.buildTooltip(this);"/>
-	</popupset>
+  <!-- Overlay -->
+  <script type="application/x-javascript" src="chrome://gmanager/content/overlay.js"/>
+  <script type="application/x-javascript" src="chrome://gmanager/content/overlayToolbarClick.js"/>
+  <script type="application/x-javascript" src="chrome://gmanager/content/overlayToolbarMenu.js"/>
+  <script type="application/x-javascript" src="chrome://gmanager/content/overlayToolbarTooltip.js"/>
+  <script type="application/x-javascript">
+  <![CDATA[
+    window.addEventListener("load", gmanager_OverlayLoad, false);
+    window.addEventListener("unload", gmanager_OverlayUnload, false);
+  ]]>
+  </script>
+
+  <!-- Tools Menu -->
+  <menupopup id="menu_ToolsPopup">
+    <menu id="gmanager-tools-menu"
+          class="menuitem-iconic"
+          insertafter="devToolsSeparator"
+          label="&ext-name;">
+
+      <menupopup onpopupshowing="return gmanager_ToolbarMenu.buildMenu(this);"/>
+    </menu>
+  </menupopup>
+
+  <!-- Context Menu -->
+  <popup id="contentAreaContextMenu">
+    <menuseparator id="gmanager-context-menu-separator"/>
+
+    <menu id="gmanager-context-menu"
+          label="&ext-name;">
+      <menupopup onpopupshowing="return gmanager_ToolbarMenu.buildMenu(this);"/>
+    </menu>
+  </popup>
+
+  <popupset id="mainPopupSet">
+    <tooltip id="gmanager-toolbar-tooltip"
+             noautohide="true"
+             orient="vertical"
+             position="after_start"
+             onpopupshowing="return gmanager_ToolbarTooltip.buildTooltip(this);"/>
+  </popupset>
 </overlay>
