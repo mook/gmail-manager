@@ -458,7 +458,7 @@ gmServiceGmail.prototype = {
     }
     
     // Create the observer for server response
-    var observer = new this.observer(this);
+    var observer = new this.observer(this, aData);
     
     // Open the HTTP channel for server request
     this._channel.notificationCallbacks = observer;
@@ -619,12 +619,13 @@ gmServiceGmail.prototype = {
     }
   },
   
-  callback: function(aData, aRequest)
+  callback: function(aData, aRequest, aObserver)
   {
     // Get the HTTP channel
     var httpChannel = aRequest.QueryInterface(Components.interfaces.nsIHttpChannel);
     
     try {
+      const SIDResetRegExp = /\/(?:ServiceLoginAuth|CookieCheck)/;
       const loginRegExp = /\/(?:ServiceLoginAuth|LoginAction)/i;
       
       // Get the HTTP channel details
@@ -640,6 +641,21 @@ gmServiceGmail.prototype = {
       {
         // Server error, try again in 30 seconds
         this._setRetryError(Components.interfaces.gmIService.STATE_ERROR_NETWORK);
+      }
+      else if (SIDResetRegExp.test(path) && aData.indexOf("accounts/SetSID?") != -1)
+      {
+        this._log("SID reset required; redirecting...");
+        let parser = Cc["@mozilla.org/xmlextras/domparser;1"]
+                       .createInstance(Ci.nsIDOMParser)
+                       .QueryInterface(Ci.nsIDOMParserJS);
+        parser.init(null, httpChannel.URI, httpChannel.originalURI);
+        let doc = parser.parseFromString('<html xmlns="http://www.w3.org/1999/xhtml">' +
+                  aData.match(/<meta[^>]+>/)[0] +
+                  '</meta></html>', "text/xml");
+        let url = doc.querySelector("meta").getAttribute("content").match(/url=['"](.*?)['"]/)[1];
+        this._log("url: " + url);
+        this._serverRequest(url, aObserver._inputData);
+        return;
       }
       else if (loginRegExp.test(path)) // Bad password
       {
@@ -913,10 +929,11 @@ gmServiceGmail.prototype = {
     return aData;
   },
   
-  observer: function(aThis)
+  observer: function(aThis, aInputData)
   {
     return ({
       _data: "",
+      _inputData: aInputData,
       
       /**
        * nsIStreamListener
@@ -926,7 +943,7 @@ gmServiceGmail.prototype = {
       },
       
       onStopRequest: function(aRequest, aContext, aStatus) {
-        aThis.callback(this._data, aRequest);
+        aThis.callback(this._data, aRequest, this);
       },
       
       onDataAvailable: function(aRequest, aContext, aStream, aSourceOffset, aLength) {
