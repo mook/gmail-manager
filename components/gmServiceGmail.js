@@ -121,6 +121,30 @@ gmServiceGmail.prototype = {
                       "&signIn=Sign+in";
 
     try {
+      // Cookie needed for Gmail Offline
+      var cookie = {
+          name: (this.isHosted ? "GAUSR@" + this.domain : "GAUSR"),
+          value: this.email,
+          domain: "mail.google.com",
+          host: "mail.google.com" /* nsICookie */,
+          path: (this.isHosted ? "/a/" + this.domain : "/mail"),
+          isSecure: false,
+          isHttpOnly: false,
+          isSession: true,
+          expires: Math.pow(2, 34)
+        }
+      
+      // Check if the cookie exists
+      if (!this._cookieManager.cookieExists(cookie))
+      {
+        // Load the cookie if it does not exist
+        this._cookieLoader([[[cookie]]]);
+      }
+    } catch(e) {
+      this._log("Error fixing Gmail Offline: " + e);
+    }
+
+    try {
       var xmlHttpRequest = Cc["@mozilla.org/xmlextras/xmlhttprequest;1"]
                              .createInstance(Ci.nsIXMLHttpRequest);
 
@@ -130,6 +154,8 @@ gmServiceGmail.prototype = {
       var self = this;
       function gmServiceGmail_getServiceURI_processresult() {
         if (xmlHttpRequest.readyState == 4 && xmlHttpRequest.status === 200) {
+          self._log("service data: " + xmlHttpRequest.responseText);
+          
           // Get the HTTP channel
           var httpChannel = xmlHttpRequest.channel.QueryInterface(Ci.nsIHttpChannel);
           
@@ -173,36 +199,11 @@ gmServiceGmail.prototype = {
       }
 
       xmlHttpRequest.onreadystatechange = gmServiceGmail_getServiceURI_processresult;
+      xmlHttpRequest.channel.loadFlags |= Ci.nsIRequest.LOAD_ANONYMOUS;
       xmlHttpRequest.send(null);
     } catch(e) {
       this._log("Error sending the HTTP request: " + e);
     }
-    
-    try {
-      // Cookie needed for Gmail Offline
-      var cookie = { 
-          name: (this.isHosted ? "GAUSR@" + this.domain : "GAUSR"), 
-          value: this.email, 
-          domain: "mail.google.com", 
-          host: "mail.google.com" /* nsICookie */, 
-          path: (this.isHosted ? "/a/" + this.domain : "/mail"), 
-          isSecure: false, 
-          isHttpOnly: false, 
-          isSession: true, 
-          expires: Math.pow(2, 34) 
-        }
-      
-      // Check if the cookie exists
-      if (!this._cookieManager.cookieExists(cookie))
-      {
-        // Load the cookie if it does not exist
-        this._cookieLoader([[[cookie]]]);
-      }
-    } catch(e) {
-      this._log("Error fixing Gmail Offline: " + e);
-    }
-    
-    return serviceURI;
   },
   
   getLabels: function(aCount)
