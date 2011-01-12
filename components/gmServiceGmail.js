@@ -625,7 +625,7 @@ gmServiceGmail.prototype = {
     var httpChannel = aRequest.QueryInterface(Components.interfaces.nsIHttpChannel);
     
     try {
-      const SIDResetRegExp = /\/(?:ServiceLoginAuth|CookieCheck)/;
+      const SIDResetRegExp = /\/(?:ServiceLoginAuth|CheckCookie)/;
       const loginRegExp = /\/(?:ServiceLoginAuth|LoginAction)/i;
       
       // Get the HTTP channel details
