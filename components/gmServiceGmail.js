@@ -805,7 +805,7 @@ gmServiceGmail.prototype = {
             if (isLatest)
             {
               // Snippets
-              var tbRE = /\["tb",0,(\[(?:\[(?:.|\s)+?\n\])*\n\])\n]/g;
+              var tbRE = /\["tb",0,(\[(?:\[(?:.|\s)+?\n\])*)\n\]\n,\[/g;
               var tbMatches = tbRE.exec(aData);
               this._log("\"tb\" match was " + (tbMatches ? "found" : "not found"));
               
