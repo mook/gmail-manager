@@ -60,6 +60,7 @@
              noautohide="true"
              orient="vertical"
              position="after_start"
-             onpopupshowing="return gmanager_ToolbarTooltip.buildTooltip(this);"/>
+             onpopupshowing="return gmanager_ToolbarTooltip.buildTooltip(this);"
+             onpopuphidden="this.removeAttribute('height');"/>
   </popupset>
 </overlay>
