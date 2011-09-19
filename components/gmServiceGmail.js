@@ -243,7 +243,7 @@ gmServiceGmail.prototype = {
     }
     else
     {
-      this._loginURL = "https://www.google.com/accounts/ServiceLoginAuth";
+      this._loginURL = "https://accounts.google.com/accounts/ServiceLoginAuth?service=mail";
       this._checkURL = "https://mail.google.com/mail/?";
     }
   },
