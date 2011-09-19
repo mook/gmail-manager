@@ -168,7 +168,7 @@ gmServiceGmail.prototype = {
           
           if (formMatches !== null) {
             // Get the hidden inputs
-            var inputMatches = (formMatches[1].match(/<input[^>]+?type=["']hidden["'][^>]+?\/>/ig) || []);
+            var inputMatches = (formMatches[1].match(/<input[^>]+?type=["']hidden["'][^>]+?>/ig) || []);
             self._log("\"input\" matches were " + (inputMatches.length > 0 ? "found" : "not found"));
             
             for (var i = 0; i < inputMatches.length; i++)
